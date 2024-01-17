@@ -1,0 +1,35 @@
+Package: hilandyn
+Type: Package
+Title: High-dimensional detection of Landscape Dynamics
+Version: 1.0.5
+Date: 2024-15-01
+Authors@R: c(
+    person("Donato", "Morresi", email = "donato.morresi@unito.it", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3545-872X")),
+    person("Hyeyoung", "Maeng", email = "hyeyoung.maeng@durham.ac.uk", role = "aut"), comment = c(ORCID = "0000-0001-7835-5862")
+    person("Matteo", "Garbarino", email = "matteo.garbarino@unito.it", role = c("ctb", "fnd"), comment = c(ORCID = "0000-0002-9010-1731"))
+    )
+Description: Implementation of the High-dimensional detection of Landscape Dynamics (HILANDYN) algorithm for mapping land surface dynamics through the segmentation of high-dimensional Landsat time series. 
+    High-dimensional Landsat time series include information from the spatial and spectral dimensions and are analysed using the High-dimensional Trend Segmentation (HiTS) procedure proposed by Maeng (2019).
+    The HiTS procedure aims to detect changepoints in a piecewise linear signal where their number and location are unknown. Changes can occur in the intercept, slope or both of linear trends.
+License: GPL (>= 2)
+Imports:
+    Rcpp,
+    RcppArmadillo,
+    matrixStats,
+    Rdpack,
+    stats,
+    terra,
+    foreach,
+    future,
+    doFuture,
+    cli,
+    progressr
+Depends: 
+    R (>= 3.5.0)
+LinkingTo: Rcpp, RcppArmadillo
+SystemRequirements: C++11
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.0
+RdMacros: Rdpack
+LazyData: true
