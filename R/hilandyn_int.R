@@ -3,60 +3,60 @@
 #' This is the internal function called by \code{\link{hilandyn_map}}.
 #'
 #' Typically, \code{hilandyn_int()} is not directly called by the user.
-#' It analyses inter-annual high-dimensional time series to detect changes in spectral trends within a spatial kernel.
-#' High-dimensional time series can include single or multiple spectral bands/indices, hereafter referred to as bands.
-#' Input data can be a \code{numeric} \code{vector} extracted from a \code{SpatRaster} or a \code{matrix}.
-#' Impulsive noise, i.e. outliers in the time series, can be removed through an iterative procedure.
-#' One-year gaps in the time series are filled using either linear interpolation or extrapolation.
+#' It processes inter-annual high-dimensional Landsat time series to detect changes in spectral trends within a spatial kernel.
 #' Changes in the intercept, slope or both of linear trends are detected using the High-dimensional Trend Segmentation (HiTS) procedure proposed by \insertCite{maeng2019adaptive;textual}{hilandyn}.
 #' The HiTS procedure aims at detecting changepoints in a piecewise linear signal where their number and location are unknown.
+#' High-dimensional time series can include single or multiple reflectance bands and spectral indices, hereafter referred to as bands.
+#' Input data can be a \code{numeric} \code{vector} extracted from a \code{SpatRaster} or a \code{matrix}. Each row in the matrix corresponds to a variable of the high-dimensional time series.
+#' Impulsive noise, i.e. outliers in the time series, can be removed through an iterative procedure by setting the \code{noise_iter_max} and \code{nob_init_min} parameters.
+#' One-year gaps in the time series are filled using either linear interpolation or extrapolation.
 #'
-#' @param x numeric matrix. Input time series where rows contain time-ordered data relative to individual bands for each cell in the spatial kernel.
+#' @param x numeric vector or matrix. Input time series where each row of the matrix contains time-ordered data relative to a band and a cell in the spatial kernel. Vectors are transformed into matrices.
+#' @param nob numeric vector or matrix. Number of clear observations available per-cell (in rows) and per-year (in columns) for producing reflectance composites. Vectors are transformed into matrices.
 #' @param nb integer. Number of input bands in the time series.
-#' @param ny integer. Number of time steps (years) in the time series.
 #' @param nc integer. The number of cells within the spatial kernel.
+#' @param ny integer. Number of time steps (years) in the time series.
+#' @param nr integer. Number of rows (variables) in the high-dimensional time series.
 #' @param yrs numeric vector. The sequence of years to be analysed.
 #' @param foc_ind numeric vector. Row indices of the bands in the focal cell.
 #' @param cell_weights logical. Whether to compute cell-based weights within the spatial kernel.
 #' @param ev logical vector. A vector containing \code{NA} values to be used in case of processing failure.
 #' @param cng_dir numeric vector. Direction (either 1 or -1) of the spectral change caused by a disturbance in each band. It is computed as the difference between pre-disturbance and post-disturbance values.
 #' @param th_const numeric. Constant value controlling the sensitivity to deviations from linearity in the HiTS procedure. Typical values are comprised in the interval \eqn{[0.7, 1.3]}.
-#' @param nob_init_min integer. The minimum number of clear observations available per time step in the first two time steps of the time series.
 #' @param noise_iter_max integer. The maximum number of iterations allowed for removing impulsive noise with the noise filter. The noise filter is disabled when the value is 0.
+#' @param nob_init_min integer. The minimum number of clear observations available per time step in the first two time steps of the time series.
+#' @param rmse logical. Determines whether to compute the root mean square error for each band in the focal cell. Original and estimated values are processed before noise filtering and gap filling.
 #' @param use_last logical. Determines whether changepoints detected at the last time point are ignored or not.
 #' @param as_list logical. If \code{TRUE} the output is a \code{list}. Otherwise, the output is a \code{numeric} \code{vector}.
 #'
 #' @return If \code{as_list} is \code{TRUE}, a \code{list} containing the following elements. Otherwise the result is a \code{numeric} \code{vector}.
-#'   \item{est}{Estimated values (one value for each year and band).}
-#'   \item{cpt}{Detected changepoints (one value for each year and band).}
-#'   \item{slo}{Slope of the linear segments (one value for each year and band).}
-#'   \item{mag}{Magnitude in absolute terms (one value for each year and band).}
-#'   \item{mag_rel}{Magnitude in relative terms (one value for each year and band).}
-#'   \item{len}{Length of segments (one value per year).}
-#'   \item{cpt_id}{Type of change (one value per year). One of the following values: 101 (abrupt disturbance); 102 (abrupt greening); 9 (other change). Otherwise \code{NA} for no change.}
-#'   \item{cpt_foc}{Number of changepoints detected by the HiTS procedure in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-#'   \item{noise}{Impulsive noise (one value per year).}
-#'   \item{d_dur}{Duration of disturbance (one value per year).}
-#'   \item{g_dur}{Duration of greening (one value per year).}
-#'   \item{d_max}{Maximum disturbance change magnitude (in relative tems) throughout the time series (one value per band).}
-#'   \item{d_fst}{Change magnitude (in relative tems) associated with the first disturbance detected within the time series (one value per band).}
-#'   \item{g_max}{Maximum greening change magnitude (in relative tems) throughout the time series (one value per band).}
-#'   \item{d_max_md}{Median among bands using values of \code{D_MAX} (single value).}
-#'   \item{d_fst_md}{Median among bands using values of \code{D_FST} (single value).}
-#'   \item{g_max_md}{Median among bands using values of \code{G_MAX} (single value).}
-#'   \item{d_max_yr}{Year corresponding to \code{D_MAX_MD} (single value).}
-#'   \item{d_fst_yr}{Year corresponding to \code{D_FST_MD} (single value).}
-#'   \item{g_max_yr}{Year corresponding to \code{G_MAX_MD} (single value).}
-#'   \item{d_max_dr}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-#'   \item{d_fst_dr}{Duration of the disturbance corresponding to \code{D_FST_MD} (single value).}
-#'   \item{g_max_dr}{Duration of the greening corresponding to \code{G_MAX_MD} (single value).}
-#'   \item{d_max-id}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-#'   \item{d_fst_id}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single value).}
-#'   \item{g_max_id}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single value).}
-#'   \item{n_gap}{Number of gaps in the time series, if any (single value).}
-#'   \item{n_noise}{Number of years containing impulsive noise, if any (single value).}
+#'   \item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single value).}
+#'   \item{D_FST_MD}{Median among bands using values of \code{D_FST} (single value).}
+#'   \item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single value).}
+#'   \item{D_MAX_YR}{Year corresponding to \code{D_MAX_MD} (single value).}
+#'   \item{D_FST_YR}{Year corresponding to \code{D_FST_MD} (single value).}
+#'   \item{G_MAX_YR}{Year corresponding to \code{G_MAX_MD} (single value).}
+#'   \item{D_MAX_DR}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single value).}
+#'   \item{D_FST_DR}{Duration of the disturbance corresponding to \code{D_FST_MD} (single value).}
+#'   \item{G_MAX_DR}{Duration of the greening corresponding to \code{G_MAX_MD} (single value).}
+#'   \item{D_MAX_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single value).}
+#'   \item{D_FST_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single value).}
+#'   \item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single value).}
+#'   \item{N_GAP}{Number of gaps in the time series, if any (single value).}
+#'   \item{N_NOISE}{Number of years containing impulsive noise, if any (single value).}
+#'   \item{RMSE}{Root mean square error of each band in the focal cell (one value per band).}
+#'   \item{LEN}{Length of segments (one value per year).}
+#'   \item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+#'   \item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
+#'   \item{NOISE}{Impulsive noise (one value per year).}
+#'   \item{D_DUR}{Duration of disturbance (one value per year).}
+#'   \item{G_DUR}{Duration of greening (one value per year).}
+#'   \item{EST}{Estimated values of the bands in the focal cell (one value per year and band).}
+#'   \item{SLO}{Slope of the linear segments of the bands in the focal cell (one value per year and band).}
+#'   \item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one value per year and band).}
+#'   \item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
 #'
-#' @author Donato Morresi, \email{donato.morresi@@gmail.com}
+#' @author Donato Morresi, \email{donato.morresi@@unito.it}
 #'
 #' @references
 #' \insertRef{maeng2019adaptive}{hilandyn}
@@ -68,37 +68,44 @@
 #' data(lnd_si)
 #' lnd_si <- terra::rast(lnd_si)
 #'
-#' # Extract values
-#' v <- terra::values(lnd_si)[2000,]
+#' # Extract values from spatial kernel
+#' cells <- terra::adjacent(lnd_si, 2000, directions = "8", include = TRUE)
+#' v <- c(as.matrix(lnd_si[sort(cells)]))
+#' 
+#' # Set parametrs
+#' bands <- c("MSI", "TCW", "TCA")
+#' nc <- 9
+#' years <- 1985:2020
+#' foc_ind <- c(5, 14, 23)
+#' cng_dir <- c(-1, 1, 1)
 #'
 #' # Process data
 #' out <- hilandyn_int(v,
-#'                     nb = 3,
-#'                     ny = 36,
-#'                     nc  = 9,
-#'                     yrs = 1985:2020,
-#'                     foc_ind = c(5, 14, 23),
-#'                     cell_weights = TRUE,
-#'                     cng_dir = c(-1, 1, 1),
+#'                     nob = rep(999, nc * length(years)),
+#'                     nb = length(bands),
+#'                     nc = nc,
+#'                     ny = length(years),
+#'                     nr = length(bands) * nc,
+#'                     yrs = years,
+#'                     foc_ind = foc_ind,
+#'                     cng_dir = cng_dir,
 #'                     as_list = TRUE)
 #'                 
 #' # Plot results
-#' bands <- c("MSI", "TCW", "TCA")
-#' years <- 1985:2020
+#' dim(v) <- c(27, length(years))
 #' par(mfrow=c(length(bands), 1))
-#'
+#' 
 #' for(i in seq_along(bands)) {
-#' plot(matrix(v[foc_ind, ], nrow = length(bands), ncol = length(years))[i,], type = "l", col = 2,
-#'        lwd = 2, ylab = "", xlab = "", xaxt = "n")
-#' lines(out$est[i,], type = "l", col = 4, lwd = 2, lty = 1)
-#' abline(v = which(out$cpt_id %in% c(101, 201)), lty = 2, col = 2, lwd = 2)
-#' axis(1, at = seq_along(years), labels = years)
-#' title(main = paste(bands[i]), adj = 0)
+#'   plot(v[foc_ind[i],], type = "l", col = 2, lwd = 2, ylab = "", xlab = "", xaxt = "n")
+#'   lines(out$EST[i,], type = "l", col = 4, lwd = 2, lty = 1)
+#'   abline(v = which(out$CPT_ID %in% c(101, 201)), lty = 2, col = 2, lwd = 2)
+#'   axis(1, at = seq_along(years), labels = years)
+#'   title(main = paste(bands[i], "(RMSE =", out$RMSE[i,], ")"), adj = 0)
 #' }
 #'
 #' @export
 
-hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TRUE, ev = NA, cng_dir, th_const = 1, noise_iter_max = 2, nob_init_min = 5, use_last = TRUE, as_list = FALSE) {
+hilandyn_int <- function(x, nob, nb, nc, ny, nr, yrs, foc_ind, cell_weights = TRUE, ev = NA, cng_dir, th_const = 1, noise_iter_max = 2, nob_init_min = 5, rmse = TRUE, use_last = TRUE, as_list = FALSE) {
   
   dim(x) <- c(nr, ny)
 
@@ -146,6 +153,13 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
   }
   
   y <- hd_bts_cpt_cpp(x, sd, nb, th_const, wgts, foc_ind - 1)
+  
+  if (rmse) {
+    rmse <- rmse_cpp(x, y$est, foc_ind)
+  }
+  else {
+    rmse <- rep(NA, nb)
+  }
 
   if (noise_iter_max > 0L) {
     
@@ -162,10 +176,8 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
         cpt_esc[cpt_in] <- 1L
         
         chk_mat <- cpt_cnd_cpp(x, y$est, nob, cpt_in, nb, nc, nob_init_min)
-        #assign("chk_mat", chk_mat, .GlobalEnv)
-        #assign("y", y, .GlobalEnv)
 
-        # search for PAs among change points
+        # search for impulsive noise
         if (nrow(chk_mat) > 0L) {
           
           proc_cpt_res <- proc_cpt_cpp(x, y$cptind[, cpt_in_ind, drop = FALSE], chk_mat, cpt_in, sd, n.times.eBias.of.mad, wgts, nc, nb, th_const)  
@@ -214,7 +226,7 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
         y$est <- cbind(rep(NA, nr), y$est)
         tpav <- c(0L, tpav)
         
-        if (any(y$cpt == eci + 1L | y$cpt == eci + 2L)) {  #any(y$cpt != 0L) && 
+        if (any(y$cpt == eci + 1L | y$cpt == eci + 2L)) {
           # use the following value
           x[, eci] <- y$est[, eci] <- y$est[, eci + 1L]
         }
@@ -225,12 +237,11 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
       }
       # or at the end
       else if (eci == ny) {
-        
         x <- cbind(x, rep(NA, nr))
         y$est <- cbind(y$est, rep(NA, nr))
         tpav <- c(tpav, 0L)
         
-        if (any(y$cpt == eci - 1L | y$cpt == eci - 2L)) {  #any(y$cpt != 0L) && 
+        if (any(y$cpt == eci - 1L | y$cpt == eci - 2L)) {
           # use the preceding value
           x[, eci] <- y$est[, eci] <- y$est[, eci - 1L]
         }
@@ -249,7 +260,6 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
         if (any(y$cpt == eci + 1L)) {
           
           if (eci > 2L) {
-            
             # fill gap using values extrapolated from the preceding segment
             x[, eci] <- y$est[, eci] <- y$est[, eci - 2L] + 2 * (y$est[, eci - 1L] - y$est[, eci - 2L])
           }
@@ -270,10 +280,6 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
   
   # compute the number of gaps
   ngap <- ny - ncc
-  
-  # store cptind per each year in a matrix
-  # cpts <- matrix(NA, nr, ny)
-  # cpts[, y$cpt] <- y$cptind
   
   # assign the year to the gap occurrence
   tpav <- tpav * yrs
@@ -334,92 +340,32 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
       cptind_cell <- matrix(y$cptind[, i], nc, nb)
       cptind_sum <- rowSums2(cptind_cell)
       cpt_foc[cpti] <- cptind_sum[hnc]
-      #cell_cng_ind <- which(cptind_sum > 0)
 
-      # evaluate the type of change
-      # mag1_act <- matrix(x[, cpti - 1L] - x[, cpti], nc, nb)
-      # mag1_est <- matrix(y$est[, cpti - 1L] - y$est[, cpti], nc, nb)
       mag1_act <- matrix(x[, cpti - 1L] - x[, cpti], nc, nb)
       mag1_est <- matrix(y$est[, cpti - 1L] - y$est[, cpti], nc, nb)
       
       cng_dir_act <- sign(mag1_act)
       cng_dir_est <- sign(mag1_est)
       
-      # if (cpti == ny) {
-      #   mag2_act <- mag2_est <- matrix(sd + 1, nc, nb)  # dummy value (only mag1 is evaluated)
-      # }
-      # else {
-      #   mag2_act <- matrix(x[, cpti - 1L] - x[, cpti + 1L], nc, nb)
-      #   mag2_est <- matrix(y$est[, cpti - 1L] - y$est[, cpti + 1L], nc, nb)
-      # }
-      
-      # sd_mat <- matrix(sd, nc, nb)
-      # cnd_cng <- sum((abs(mag1_est[foc_ind]) > sd_mat[foc_ind]) & 
-      #                  (abs(mag2_est[foc_ind]) > sd_mat[foc_ind]) & 
-      #                  (sign(mag1_est[foc_ind]) == sign(mag2_est[foc_ind])), na.rm = TRUE)
       sd_mat <- matrix(sd, nc, nb)
       cng_cnd <- sum(abs(mag1_est[hnc,]) < sd_mat[hnc,])
 
-      ### assess whether the change is abrupt or gradual
-      # if (len_seg[cpti] == 1L) {
-      #   cng.type <- 1L   # abrupt change
-      # }
-      # else if (cnd_cng > 0) {
-      #   cng.type <- 1L   # abrupt change
-      # }
-      # else {
-      #   cng.type <- 2L   # gradual change
-      # }
-      
-      # if (cng_cnd >= nb) {
-      #   cng_type <- 2L   # gradual change
-      # }
-      # else {
-      #   cng_type <- 1L   # abrupt change
-      # }
-      
-      cnd_d <- rowSums2(cng_dir_act == cng_dir & cng_dir_est == cng_dir)    #[cell_cng_ind]
-      cnd_g <- rowSums2(cng_dir_act == -cng_dir & cng_dir_est == -cng_dir)  #[cell_cng_ind]   cng_dir_act == -dir & cng_dir_est == -dir
+      cnd_d <- rowSums2(cng_dir_act == cng_dir & cng_dir_est == cng_dir)    
+      cnd_g <- rowSums2(cng_dir_act == -cng_dir & cng_dir_est == -cng_dir)
 
-      # if (cpti == 2 || (cpti == ny && use_last) || (cpti == 3 && is.na(nob[hnc, 2]))) {       
-      #   
-      #   if (is.na(nob[hnc, cpti - 1])) {
-      #     nob[hnc, cpti - 1] <- 0L
-      #   }
-      #   
-      #   if (cnd_d[hnc] == nb && nob[hnc, cpti - 1] >= min_obs) {
-      #     
-      #     cpt_id[cpti] <- 101L    # abrupt disturbance
-      #     d_dur[cpti] <- 1L
-      #     mag[, cpti] <- mag1_est
-      #     mag_rel[, cpti] <- mag1_est / y$est[, cpti - 1L] * 100
-      #   }
-      #   else if (cnd_g[hnc] == nb && nob[hnc, cpti - 1] >= min_obs) {
-      #     
-      #     cpt_id[cpti] <- 102L    # abrupt greening
-      #     g_dur[cpti] <- len_seg[cpti]
-      #     mag[, cpti] <- mag1_est
-      #     mag_rel[, cpti] <- mag1_est / y$est[, cpti - 1L] * 100
-      #   }
-      #   else {
-      #     cpt_id[cpti] <- 9L
-      #   }
-      # }
       if (cpti == ny && !use_last) {
         cpt_id[cpti] <- 9L
       }
-      # else if (cng_type == 1) {
+
       else {  
-        if (cnd_d[hnc] >= hnb) {  #sum(cnd_d[cell_cng_ind] > 0) > h_cell_cng
-          
-          cpt_id[cpti] <- 101L    # abrupt disturbance
-          d_dur[cpti] <- 1L
+        if (cnd_d[hnc] >= hnb) {
+          cpt_id[cpti] <- 101L    # disturbance
+          d_dur[cpti] <- len_seg[cpti]
           mag[, cpti] <- mag1_est
           mag_rel[, cpti] <- mag1_est / y$est[, cpti - 1L] * 100
         }
-        else if (cnd_g[hnc] >= hnb) {    #sum(cnd_g[cell_cng_ind] > 0) > h_cell_cng
-          
-          cpt_id[cpti] <- 102L    # abrupt greening
+        else if (cnd_g[hnc] >= hnb) {    
+          cpt_id[cpti] <- 102L    # greening
           g_dur[cpti] <- len_seg[cpti]
           mag[, cpti] <- mag1_est
           mag_rel[, cpti] <- mag1_est / y$est[, cpti - 1L] * 100
@@ -428,43 +374,20 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
           cpt_id[cpti] <- 9L
         }
       }
-      # else {   # gradual change
-      # 
-      #   slo_dir <- matrix(sign(slo_seg[, cpti]), nc, nb)
-      #   cnd_d <- rowSums2(slo_dir == -cng_dir, na.rm = TRUE)
-      #   cnd_g <- rowSums2(slo_dir == cng_dir, na.rm = TRUE)
-      #   mag3_est <- matrix(y$est[, cpti] - y$est[, cpti - 1L + len_seg[cpti]], nc, nb)
-      # 
-      #   if (cnd_d[hnc] >= hnb) {  #sum(cnd_d[cell_cng_ind] > 0) > h_cell_cng
-      #     cpt_id[cpti] <- 201L    # gradual decline
-      #     d_dur[cpti] <- len_seg[cpti]
-      #     mag[, cpti] <- mag3_est
-      #     mag_rel[, cpti] <- mag3_est / y$est[, cpti - 1L] * 100
-      #   }
-      #   else if (cnd_g[hnc] >= hnb) {    #sum(cnd_g[cell_cng_ind] > 0) > h_cell_cng
-      #     cpt_id[cpti] <- 202L    # gradual greening
-      #     g_dur[cpti] <- len_seg[cpti]
-      #     mag[, cpti] <- mag3_est
-      #     mag_rel[, cpti] <- mag3_est / y$est[, cpti - 1L] * 100
-      #   }
-      #   else {
-      #     cpt_id[cpti] <- 9L
-      #   }
-      # }
     }
     
     # find the highest-magnitude disturbance and its duration
     mag_med <- colMedians(abs(mag_rel))
     
-    if (any(cpt_id %in% c(101, 201))) {
-      d_mag <- max(mag_med[cpt_id %in% c(101, 201)])
+    if (any(cpt_id %in% c(101))) {
+      d_mag <- max(mag_med[cpt_id %in% c(101)])
       d_mag_ci <- which(mag_med %in% d_mag)
       d_mag_yr <- yrs[d_mag_ci]
       d_mag_dr <- d_dur[d_mag_ci]
       d_mag_id <- cpt_id[d_mag_ci]
       
       # find the first disturbance occurred
-      ind <- which.max(cpt_id %in% c(101, 201))
+      ind <- which.max(cpt_id %in% c(101))
       d_fst_yr <- yrs[ind]
       d_fst_md <- mag_med[ind]
       d_fst_dr <- d_dur[ind]
@@ -472,8 +395,8 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
     }
     
     # find the highest-magnitude greening and its duration
-    if (any(cpt_id %in% c(102, 202))) {
-      g_mag <- max(mag_med[cpt_id %in% c(102, 202)])
+    if (any(cpt_id %in% c(102))) {
+      g_mag <- max(mag_med[cpt_id %in% c(102)])
       g_mag_ci <- which(mag_med %in% g_mag)
       g_mag_yr <- yrs[g_mag_ci]
       g_mag_dr <- g_dur[g_mag_ci]
@@ -482,20 +405,22 @@ hilandyn_int <- function(x, nob, nr, ny, nb, nc, yrs, foc_ind, cell_weights = TR
   }
 
   if (as_list) {
-    v <- list(d_max_md = d_mag, d_fst_md = d_fst_md, g_mag_md = g_mag, d_max_yr = d_mag_yr,                                      # single values
-              d_fst_yr = d_fst_yr, g_max_yr = g_mag_yr, d_max_dr = d_mag_dr, d_fst_dr = d_fst_dr,                                # single values
-              g_max_dr = g_mag_dr, d_max_id = d_mag_id, d_fst_id = d_fst_id, g_max_id = g_mag_id, n_gap = ngap, n_noise = ntpa,  # single values
-              len = len_seg, cpt_id = cpt_id, cpt_foc = cpt_foc, noise = tpav, d_dur = d_dur, g_dur = g_dur,                     # long vectors
-              est = y$est[foc_ind, , drop = FALSE], slo = slo_seg[foc_ind, , drop = FALSE],                                      # matrices
-              mag = mag[foc_ind, , drop = FALSE], mag_rel = mag_rel[foc_ind, , drop = FALSE])                                                                                    # matrices
+    v <- list(D_MAX_MD = d_mag, D_FST_MD = d_fst_md, G_MAG_MD = g_mag, D_MAX_YR = d_mag_yr,                                      # single values
+              D_FST_YR = d_fst_yr, G_MAX_YR = g_mag_yr, D_MAX_DR = d_mag_dr, D_FST_DR = d_fst_dr,                                # single values
+              G_MAX_DR = g_mag_dr, D_MAX_ID = d_mag_id, D_FST_ID = d_fst_id, G_MAX_ID = g_mag_id, N_GAP = ngap, N_NOISE = ntpa,  # single values
+              RMSE = rmse,                                                                                                       # vectors (bands)
+              LEN = len_seg, CPT_ID = cpt_id, CPT_FOC = cpt_foc, NOISE = tpav, D_DUR = d_dur, G_DUR = g_dur,                     # vectors (years)
+              EST = y$est[foc_ind, , drop = FALSE], SLO = slo_seg[foc_ind, , drop = FALSE],                                      # matrices
+              MAG = mag[foc_ind, , drop = FALSE], MAG_REL = mag_rel[foc_ind, , drop = FALSE])                                    # matrices                                                # matrices
   }
   else {
     v <- c(d_mag, d_fst_md, g_mag, d_mag_yr, d_fst_yr,      # single values
            g_mag_yr, d_mag_dr, d_fst_dr, g_mag_dr,          # single values
            d_mag_id, d_fst_id, g_mag_id, ngap, ntpa,        # single values
-           len_seg, cpt_id, cpt_foc, tpav, d_dur, g_dur,    # long vectors
+           rmse,                                            # vectors (bands)
+           len_seg, cpt_id, cpt_foc, tpav, d_dur, g_dur,    # vectors (years)
            y$est[foc_ind, ], slo_seg[foc_ind, ],            # matrices
-           mag[foc_ind, ], mag_rel[foc_ind, ])                                    # matrices
+           mag[foc_ind, ], mag_rel[foc_ind, ])              # matrices
   }
   
   return(v)

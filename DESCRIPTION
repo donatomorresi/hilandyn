@@ -5,7 +5,7 @@ Version: 1.0.5
 Date: 2024-15-01
 Authors@R: c(
     person("Donato", "Morresi", email = "donato.morresi@unito.it", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3545-872X")),
-    person("Hyeyoung", "Maeng", email = "hyeyoung.maeng@durham.ac.uk", role = "aut"), comment = c(ORCID = "0000-0001-7835-5862")
+    person("Hyeyoung", "Maeng", email = "hyeyoung.maeng@durham.ac.uk", role = c("aut"), comment = c(ORCID = "0000-0001-7835-5862")),
     person("Matteo", "Garbarino", email = "matteo.garbarino@unito.it", role = c("ctb", "fnd"), comment = c(ORCID = "0000-0002-9010-1731"))
     )
 Description: Implementation of the High-dimensional detection of Landscape Dynamics (HILANDYN) algorithm for mapping land surface dynamics through the segmentation of high-dimensional Landsat time series. 
@@ -17,19 +17,19 @@ Imports:
     RcppArmadillo,
     matrixStats,
     Rdpack,
-    stats,
     terra,
     foreach,
     future,
     doFuture,
-    cli,
-    progressr
+    progressr,
+    lubridate
 Depends: 
     R (>= 3.5.0)
 LinkingTo: Rcpp, RcppArmadillo
-SystemRequirements: C++11
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.0
 RdMacros: Rdpack
 LazyData: true
+URL: https://github.com/donatomorresi/hilandyn
+BugReports: https://github.com/donatomorresi/hilandyn/issues

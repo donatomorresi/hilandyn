@@ -2,7 +2,7 @@
 % Please edit documentation in R/hilandyn.R
 \name{hilandyn}
 \alias{hilandyn}
-\title{hilandyn: Implementation of the High-dimensional Detection of Landscape Dynamics (HILANDYN) algorithm for mapping land surface dynamics through the segmentation of high-dimensional Landsat time series.}
+\title{hilandyn: Implementation of the High-dimensional detection of Landscape Dynamics (HILANDYN) algorithm for mapping land surface dynamics through the segmentation of high-dimensional Landsat time series.}
 \description{
 HILANDYN employs the High-dimensional Trend Segmentation (HiTS) procedure proposed by Maeng (2019) to detect changepoints in linear trends from Landsat time series including information in the spatial and spectral dimensions.
 The HiTS procedure aims to detect changepoints in a piecewise linear signal where their number and location are unknown. Changes can occur in the intercept, slope or both of linear trends.
@@ -15,5 +15,5 @@ Maeng, H. (2019). Adaptive multiscale approaches to regression and trend segment
 \code{\link{hilandyn_map}}, \code{\link{hilandyn_int}}
 }
 \author{
-Donato Morresi \email{donato.morresi@gmail.com}, Hyeyoung Maeng \email{h.maeng4@lancaster.ac.uk}, Matteo Garbarino \email{matteo.garbarino@unito.it}
+Donato Morresi \email{donato.morresi@unito.it}, Hyeyoung Maeng \email{hyeyoung.maeng@durham.ac.uk}, Matteo Garbarino \email{matteo.garbarino@unito.it}
 }

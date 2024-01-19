@@ -165,6 +165,14 @@ arma::mat focal_values_cpp(arma::vec d, arma::uvec dim, arma::uword w) {
 
 
 // [[Rcpp::export]]
+arma::vec rmse_cpp(arma::mat x, arma::mat y, arma::uvec foc_ind) {
+  
+  arma::vec rmse = arma::sqrt(arma::sum(arma::square(x.rows(foc_ind) - y.rows(foc_ind)), 1) / x.n_cols);
+  return rmse;
+}
+
+
+// [[Rcpp::export]]
 arma::umat cpt_cnd_cpp(arma::mat x, arma::mat y, arma::mat nob, arma::uvec cpt, arma::uword nb, arma::uword nc, arma::uword nob_init_min) {
   
   cpt -= 1;                          // for compatibility between C++ and R

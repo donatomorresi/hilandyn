@@ -2,15 +2,15 @@
 % Please edit documentation in R/hilandyn_int.R
 \name{hilandyn_int}
 \alias{hilandyn_int}
-\title{High-dimensional Detection of Landscape Dynamics engine}
+\title{High-dimensional detection of Landscape Dynamics engine}
 \usage{
 hilandyn_int(
   x,
   nob,
-  nr,
-  ny,
   nb,
   nc,
+  ny,
+  nr,
   yrs,
   foc_ind,
   cell_weights = TRUE,
@@ -19,18 +19,23 @@ hilandyn_int(
   th_const = 1,
   noise_iter_max = 2,
   nob_init_min = 5,
+  rmse = TRUE,
   use_last = TRUE,
   as_list = FALSE
 )
 }
 \arguments{
-\item{x}{numeric matrix. Input time series where rows contain time-ordered data relative to individual bands for each cell in the spatial kernel.}
+\item{x}{numeric vector or matrix. Input time series where each row of the matrix contains time-ordered data relative to a band and a cell in the spatial kernel. Vectors are transformed into matrices.}
 
-\item{ny}{integer. Number of time steps (years) in the time series.}
+\item{nob}{numeric vector or matrix. Number of clear observations available per-cell (in rows) and per-year (in columns) for producing reflectance composites. Vectors are transformed into matrices.}
 
 \item{nb}{integer. Number of input bands in the time series.}
 
 \item{nc}{integer. The number of cells within the spatial kernel.}
+
+\item{ny}{integer. Number of time steps (years) in the time series.}
+
+\item{nr}{integer. Number of rows (variables) in the high-dimensional time series.}
 
 \item{yrs}{numeric vector. The sequence of years to be analysed.}
 
@@ -48,53 +53,52 @@ hilandyn_int(
 
 \item{nob_init_min}{integer. The minimum number of clear observations available per time step in the first two time steps of the time series.}
 
+\item{rmse}{logical. Determines whether to compute the root mean square error for each band in the focal cell. Original and estimated values are processed before noise filtering and gap filling.}
+
 \item{use_last}{logical. Determines whether changepoints detected at the last time point are ignored or not.}
 
 \item{as_list}{logical. If \code{TRUE} the output is a \code{list}. Otherwise, the output is a \code{numeric} \code{vector}.}
 }
 \value{
 If \code{as_list} is \code{TRUE}, a \code{list} containing the following elements. Otherwise the result is a \code{numeric} \code{vector}.
-\item{est}{Estimated values (one value for each year and band).}
-\item{cpt}{Detected changepoints (one value for each year and band).}
-\item{slo}{Slope of the linear segments (one value for each year and band).}
-\item{mag}{Magnitude in absolute terms (one value for each year and band).}
-\item{mag_rel}{Magnitude in relative terms (one value for each year and band).}
-\item{len}{Length of segments (one value per year).}
-\item{cpt_id}{Type of change (one value per year). One of the following values: 101 (abrupt disturbance); 102 (abrupt greening); 9 (other change). Otherwise \code{NA} for no change.}
-\item{cpt_foc}{Number of changepoints detected by the HiTS procedure in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-\item{noise}{Impulsive noise (one value per year).}
-\item{d_dur}{Duration of disturbance (one value per year).}
-\item{g_dur}{Duration of greening (one value per year).}
-\item{d_max}{Maximum disturbance change magnitude (in relative tems) throughout the time series (one value per band).}
-\item{d_fst}{Change magnitude (in relative tems) associated with the first disturbance detected within the time series (one value per band).}
-\item{g_max}{Maximum greening change magnitude (in relative tems) throughout the time series (one value per band).}
-\item{d_max_md}{Median among bands using values of \code{D_MAX} (single value).}
-\item{d_fst_md}{Median among bands using values of \code{D_FST} (single value).}
-\item{g_max_md}{Median among bands using values of \code{G_MAX} (single value).}
-\item{d_max_yr}{Year corresponding to \code{D_MAX_MD} (single value).}
-\item{d_fst_yr}{Year corresponding to \code{D_FST_MD} (single value).}
-\item{g_max_yr}{Year corresponding to \code{G_MAX_MD} (single value).}
-\item{d_max_dr}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-\item{d_fst_dr}{Duration of the disturbance corresponding to \code{D_FST_MD} (single value).}
-\item{g_max_dr}{Duration of the greening corresponding to \code{G_MAX_MD} (single value).}
-\item{d_max-id}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-\item{d_fst_id}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single value).}
-\item{g_max_id}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single value).}
-\item{n_gap}{Number of gaps in the time series, if any (single value).}
-\item{n_noise}{Number of years containing impulsive noise, if any (single value).}
+\item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single value).}
+\item{D_FST_MD}{Median among bands using values of \code{D_FST} (single value).}
+\item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single value).}
+\item{D_MAX_YR}{Year corresponding to \code{D_MAX_MD} (single value).}
+\item{D_FST_YR}{Year corresponding to \code{D_FST_MD} (single value).}
+\item{G_MAX_YR}{Year corresponding to \code{G_MAX_MD} (single value).}
+\item{D_MAX_DR}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single value).}
+\item{D_FST_DR}{Duration of the disturbance corresponding to \code{D_FST_MD} (single value).}
+\item{G_MAX_DR}{Duration of the greening corresponding to \code{G_MAX_MD} (single value).}
+\item{D_MAX_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single value).}
+\item{D_FST_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single value).}
+\item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single value).}
+\item{N_GAP}{Number of gaps in the time series, if any (single value).}
+\item{N_NOISE}{Number of years containing impulsive noise, if any (single value).}
+\item{RMSE}{Root mean square error of each band in the focal cell (one value per band).}
+\item{LEN}{Length of segments (one value per year).}
+\item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+\item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
+\item{NOISE}{Impulsive noise (one value per year).}
+\item{D_DUR}{Duration of disturbance (one value per year).}
+\item{G_DUR}{Duration of greening (one value per year).}
+\item{EST}{Estimated values of the bands in the focal cell (one value per year and band).}
+\item{SLO}{Slope of the linear segments of the bands in the focal cell (one value per year and band).}
+\item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one value per year and band).}
+\item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
 }
 \description{
 This is the internal function called by \code{\link{hilandyn_map}}.
 }
 \details{
 Typically, \code{hilandyn_int()} is not directly called by the user.
-It analyses inter-annual high-dimensional time series to detect changes in spectral trends within a spatial kernel.
-High-dimensional time series can include single or multiple spectral bands/indices, hereafter referred to as bands.
-Input data can be a \code{numeric} \code{vector} extracted from a \code{SpatRaster} or a \code{matrix}.
-Impulsive noise, i.e. outliers in the time series, can be removed through an iterative procedure.
-One-year gaps in the time series are filled using either linear interpolation or extrapolation.
+It processes inter-annual high-dimensional Landsat time series to detect changes in spectral trends within a spatial kernel.
 Changes in the intercept, slope or both of linear trends are detected using the High-dimensional Trend Segmentation (HiTS) procedure proposed by \insertCite{maeng2019adaptive;textual}{hilandyn}.
 The HiTS procedure aims at detecting changepoints in a piecewise linear signal where their number and location are unknown.
+High-dimensional time series can include single or multiple reflectance bands and spectral indices, hereafter referred to as bands.
+Input data can be a \code{numeric} \code{vector} extracted from a \code{SpatRaster} or a \code{matrix}. Each row in the matrix corresponds to a variable of the high-dimensional time series.
+Impulsive noise, i.e. outliers in the time series, can be removed through an iterative procedure by setting the \code{noise_iter_max} and \code{nob_init_min} parameters.
+One-year gaps in the time series are filled using either linear interpolation or extrapolation.
 }
 \examples{
 library(hilandyn)
@@ -103,32 +107,39 @@ library(hilandyn)
 data(lnd_si)
 lnd_si <- terra::rast(lnd_si)
 
-# Extract values
-v <- terra::values(lnd_si)[2000,]
+# Extract values from spatial kernel
+cells <- terra::adjacent(lnd_si, 2000, directions = "8", include = TRUE)
+v <- c(as.matrix(lnd_si[sort(cells)]))
+
+# Set parametrs
+bands <- c("MSI", "TCW", "TCA")
+nc <- 9
+years <- 1985:2020
+foc_ind <- c(5, 14, 23)
+cng_dir <- c(-1, 1, 1)
 
 # Process data
 out <- hilandyn_int(v,
-                    nb = 3,
-                    ny = 36,
-                    nc  = 9,
-                    yrs = 1985:2020,
-                    foc_ind = c(5, 14, 23),
-                    cell_weights = TRUE,
-                    cng_dir = c(-1, 1, 1),
+                    nob = rep(999, nc * length(years)),
+                    nb = length(bands),
+                    nc = nc,
+                    ny = length(years),
+                    nr = length(bands) * nc,
+                    yrs = years,
+                    foc_ind = foc_ind,
+                    cng_dir = cng_dir,
                     as_list = TRUE)
                 
 # Plot results
-bands <- c("MSI", "TCW", "TCA")
-years <- 1985:2020
+dim(v) <- c(27, length(years))
 par(mfrow=c(length(bands), 1))
 
 for(i in seq_along(bands)) {
-plot(matrix(v[foc_ind, ], nrow = length(bands), ncol = length(years))[i,], type = "l", col = 2,
-       lwd = 2, ylab = "", xlab = "", xaxt = "n")
-lines(out$est[i,], type = "l", col = 4, lwd = 2, lty = 1)
-abline(v = which(out$cpt_id \%in\% c(101, 201)), lty = 2, col = 2, lwd = 2)
-axis(1, at = seq_along(years), labels = years)
-title(main = paste(bands[i]), adj = 0)
+  plot(v[foc_ind[i],], type = "l", col = 2, lwd = 2, ylab = "", xlab = "", xaxt = "n")
+  lines(out$EST[i,], type = "l", col = 4, lwd = 2, lty = 1)
+  abline(v = which(out$CPT_ID \%in\% c(101, 201)), lty = 2, col = 2, lwd = 2)
+  axis(1, at = seq_along(years), labels = years)
+  title(main = paste(bands[i], "(RMSE =", out$RMSE[i,], ")"), adj = 0)
 }
 
 }
@@ -136,5 +147,5 @@ title(main = paste(bands[i]), adj = 0)
 \insertRef{maeng2019adaptive}{hilandyn}
 }
 \author{
-Donato Morresi, \email{donato.morresi@gmail.com}
+Donato Morresi, \email{donato.morresi@unito.it}
 }

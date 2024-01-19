@@ -2,7 +2,7 @@
 % Please edit documentation in R/hilandyn_map.R
 \name{hilandyn_map}
 \alias{hilandyn_map}
-\title{High-dimensional Detection of Landscape Dynamics}
+\title{High-dimensional detection of Landscape Dynamics}
 \usage{
 hilandyn_map(
   sr_data,
@@ -19,6 +19,7 @@ hilandyn_map(
   th_const = 1,
   noise_iter_max = 2,
   nob_init_min = 5,
+  rmse = TRUE,
   use_last = TRUE,
   expand = TRUE,
   roi_vec = NULL,
@@ -56,6 +57,8 @@ hilandyn_map(
 
 \item{nob_init_min}{integer. The minimum number of clear observations available per time step in the first two time steps of the time series.}
 
+\item{rmse}{logical. Determines whether to compute the root mean square error for each band in the focal cell. Original and estimated values are processed before noise filtering and gap filling.}
+
 \item{use_last}{logical. Determines whether changepoints detected at the last time point are ignored or not.}
 
 \item{expand}{logical. Whether to expand the raster by adding virtual rows and columns outside of it. New cells are filled with \code{NA}.}
@@ -70,20 +73,6 @@ hilandyn_map(
 }
 \value{
 If \code{out_path} is \code{NULL}, a \code{SpatRaster} containing the following layers.
-\item{EST}{Estimated values (one layer for each year and band).}
-\item{CPT}{Detected changepoints (one layer for each year and band).}
-\item{SLO}{Slope of the linear segments (one layer for each year and band).}
-\item{MAG}{Magnitude in absolute terms (one layer for each year and band).}
-\item{MAG_REL}{Magnitude in relative terms (one layer for each year and band).}
-\item{LEN}{Length of segments (one layer per year).}
-\item{CPT_ID}{Type of change (one layer per year). One of the following values: 101 (abrupt disturbance); 102 (abrupt greening); 201 (gradual disturbance); 202 (gradual greening); 9 (other change). Otherwise \code{NA} for no change.}
-\item{CPT_FOC}{Number of changepoints detected by the HiTS procedure in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-\item{NOISE}{Impulsive noise (one layer per year).}
-\item{D_DUR}{Duration of disturbance (one layer per year).}
-\item{G_DUR}{Duration of greening (one layer per year).}
-\item{D_MAX}{Maximum disturbance change magnitude (in relative terms) throughout the time series (one layer per band).}
-\item{D_FST}{Change magnitude (in relative terms) associated with the first disturbance detected within the time series (one layer per band).}
-\item{G_MAX}{Maximum greening change magnitude (in relative tems) throughout the time series (one layer per band).}
 \item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single layer).}
 \item{D_FST_MD}{Median among bands using values of \code{D_FST} (single layer).}
 \item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single layer).}
@@ -98,18 +87,29 @@ If \code{out_path} is \code{NULL}, a \code{SpatRaster} containing the following 
 \item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single layer).}
 \item{N_GAP}{Number of gaps in the time series, if any (single layer).}
 \item{N_NOISE}{Number of years containing impulsive noise, if any (single layer).}
+\item{RMSE}{Root mean square error of each band in the focal cell (one layer per band).}
+\item{LEN}{Length of segments (one layer per year).}
+\item{CPT_ID}{Type of change (one layer per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+\item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
+\item{NOISE}{Impulsive noise (one layer per year).}
+\item{D_DUR}{Duration of disturbance (one layer per year).}
+\item{G_DUR}{Duration of greening (one layer per year).}
+\item{EST}{Estimated values of the bands in the focal cell (one layer per year and band).}
+\item{SLO}{Slope of the linear segments of the bands in the focal cell (one layer per year and band).}
+\item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one layer per year and band).}
+\item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one layer per year and band).}
 }
 \description{
 This is the main function of the package.
 }
 \details{
 \code{hilandyn_map()} produces maps relative to landscape dynamics through the segmentation of high-dimensional Landsat time series.
-These latter include information in the spatial and spectral dimensions and are analysed using the High-dimensional Trend Segmentation (HiTS) procedure proposed by \insertCite{maeng2019adaptive;textual}{hilandyn}.
+These latter include information from the spatial and spectral domains and are analysed using the High-dimensional Trend Segmentation (HiTS) procedure proposed by \insertCite{maeng2019adaptive;textual}{hilandyn}.
 The HiTS procedure aims to detect changepoints in a piecewise linear signal where their number and location are unknown. Changes can occur in the intercept, slope or both of linear trends.
-Time series can include single or multiple spectral bands/indices, hereafter referred to as bands.
+High-dimensional time series can include single or multiple spectral bands/indices, hereafter referred to as bands.
 Impulsive noise, i.e. outliers in the time series, are removed through an iterative procedure.
 One-year gaps in the time series are filled using either linear interpolation or extrapolation.
-If input data are provided as folders, one multiband raster in \emph{.tif} format per year should be present within each folder. Moreover, filenames should contain the year such that rasters can be ordered by year.
+If input data, i.e. \code{sr_data}, \code{si_data}, and \code{nob_data}, are provided as paths to folders, one multiband raster in \emph{.tif} format per year is required. Raster file names should include the year such that they can be ordered by time.
 Input rasters are read as \code{SpatRaster} objects created by the \pkg{terra} package.
 }
 \examples{
@@ -122,14 +122,17 @@ lnd_sr <- terra::rast(lnd_sr)
 lnd_si <- terra::rast(lnd_si)
 
 # Process data
-rsout <- hilandyn(sr_data = "lnd_sr",
-                  si_data = "lnd_si",
-                  years = 1985:2020,
-                  cng_dir = c(-1, -1, 1, 1),
-                  cores = parallel::detectCores() - 1)
+rsout <- hilandyn_map(sr_data = "lnd_sr",
+                      si_data = "lnd_si",
+                      nob_data = NULL,
+                      years = 1985:2020,
+                      cng_dir = c(-1, -1, 1, 1),
+                      cores = 1)
 
-# Plot the maximum disturbance magnitude
+# Plot the maximum disturbance magnitude and the corresponding year
 terra::plot(rsout[["D_MAX_MD"]])
+terra::plot(rsout[["D_MAX_YR"]])
+
 
 }
 \references{
@@ -139,5 +142,5 @@ terra::plot(rsout[["D_MAX_MD"]])
 \code{\link{hilandyn_int}}
 }
 \author{
-Donato Morresi, \email{donato.morresi@gmail.com}
+Donato Morresi, \email{donato.morresi@unito.it}
 }

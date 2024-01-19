@@ -21,6 +21,10 @@ focal_values_cpp <- function(d, dim, w) {
     .Call('_hilandyn_focal_values_cpp', PACKAGE = 'hilandyn', d, dim, w)
 }
 
+rmse_cpp <- function(x, y, foc_ind) {
+    .Call('_hilandyn_rmse_cpp', PACKAGE = 'hilandyn', x, y, foc_ind)
+}
+
 cpt_cnd_cpp <- function(x, y, nob, cpt, nb, nc, nob_init_min) {
     .Call('_hilandyn_cpt_cnd_cpp', PACKAGE = 'hilandyn', x, y, nob, cpt, nb, nc, nob_init_min)
 }

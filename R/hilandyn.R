@@ -1,4 +1,4 @@
-#' hilandyn: Implementation of the High-dimensional detection of Landscape Dynamics (HILANDYN) algorithm for mapping land surface dynamics through the segmentation of high-dimensional Landsat time series. 
+#' hilandyn: Implementation of the High-dimensional detection of Landscape Dynamics (HILANDYN) algorithm for mapping forest disturbance dynamics through the temporal segmentation of high-dimensional Landsat time series. 
 #' 
 #' HILANDYN employs the High-dimensional Trend Segmentation (HiTS) procedure proposed by Maeng (2019) to detect changepoints in linear trends from Landsat time series including information in the spatial and spectral dimensions.
 #' The HiTS procedure aims to detect changepoints in a piecewise linear signal where their number and location are unknown. Changes can occur in the intercept, slope or both of linear trends.

@@ -71,6 +71,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rmse_cpp
+arma::vec rmse_cpp(arma::mat x, arma::mat y, arma::uvec foc_ind);
+RcppExport SEXP _hilandyn_rmse_cpp(SEXP xSEXP, SEXP ySEXP, SEXP foc_indSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type y(ySEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type foc_ind(foc_indSEXP);
+    rcpp_result_gen = Rcpp::wrap(rmse_cpp(x, y, foc_ind));
+    return rcpp_result_gen;
+END_RCPP
+}
 // cpt_cnd_cpp
 arma::umat cpt_cnd_cpp(arma::mat x, arma::mat y, arma::mat nob, arma::uvec cpt, arma::uword nb, arma::uword nc, arma::uword nob_init_min);
 RcppExport SEXP _hilandyn_cpt_cnd_cpp(SEXP xSEXP, SEXP ySEXP, SEXP nobSEXP, SEXP cptSEXP, SEXP nbSEXP, SEXP ncSEXP, SEXP nob_init_minSEXP) {
@@ -283,6 +296,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_hilandyn_sd_est_cpp", (DL_FUNC) &_hilandyn_sd_est_cpp, 2},
     {"_hilandyn_wgt_sam_cpp", (DL_FUNC) &_hilandyn_wgt_sam_cpp, 3},
     {"_hilandyn_focal_values_cpp", (DL_FUNC) &_hilandyn_focal_values_cpp, 3},
+    {"_hilandyn_rmse_cpp", (DL_FUNC) &_hilandyn_rmse_cpp, 3},
     {"_hilandyn_cpt_cnd_cpp", (DL_FUNC) &_hilandyn_cpt_cnd_cpp, 7},
     {"_hilandyn_proc_cpt_cpp", (DL_FUNC) &_hilandyn_proc_cpt_cpp, 10},
     {"_hilandyn_hd_bts_dcmp_cpp", (DL_FUNC) &_hilandyn_hd_bts_dcmp_cpp, 3},
