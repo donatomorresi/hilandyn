@@ -4,13 +4,10 @@
 # High-dimensional detection of Landscape Dynamics (HILANDYN)
 
 <!-- badges: start -->
-<<<<<<< HEAD
 
 [![](https://img.shields.io/badge/devel%20version-1.0.5.9000-blue.svg)](https://github.com/donatomorresi/hilandyn)
 [![R build
 status](https://github.com/donatomorresi/hilandyn/workflows/R-CMD-check/badge.svg)](https://github.com/donatomorresi/hilandyn/actions)
-=======
->>>>>>> 561e8f52f1488d9b18d5c07bfe38361fadd88775
 <!-- badges: end -->
 
 ## About
