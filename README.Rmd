@@ -39,4 +39,6 @@ devtools::install_github("donatomorresi/hilandyn")
 
 
 ### References
+Morresi, D., Maeng, H., Marzano, R., Lingua, E., Motta, R., & Garbarino, M. (2024). High-dimensional detection of Landscape Dynamics: a Landsat time series-based algorithm for forest disturbance mapping and beyond. GIScience & Remote Sensing, 61(1), 2365001.
+
 Maeng, H. (2019). Adaptive multiscale approaches to regression and trend segmentation. Ph.D. thesis, London School of Economics and Political Science.
