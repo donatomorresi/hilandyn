@@ -294,10 +294,10 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
     
     str_row <- b$row[i]
     n_rows <- b$nrows[i] + 2*hw
-    v <- focal_values_cpp(rs@cpp$readValues(str_row-1, n_rows, 0, n_cols), c(n_rows, n_cols, nlyr(rs)), win_side)
+    v <- focal_values_cpp(rs@ptr$readValues(str_row-1, n_rows, 0, n_cols), c(n_rows, n_cols, nlyr(rs)), win_side)
     
     if (!is.null(nob_data)) {
-      nob <- focal_values_cpp(nob_data@cpp$readValues(str_row-1, n_rows, 0, n_cols), c(n_rows, n_cols, nlyr(nob_data)), win_side)
+      nob <- focal_values_cpp(nob_data@ptr$readValues(str_row-1, n_rows, 0, n_cols), c(n_rows, n_cols, nlyr(nob_data)), win_side)
     }
     else {
       nob = rep(999L, nc*ny)
