@@ -204,8 +204,8 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         arma::uvec edges_ind2 = edges(ord_det.subvec(tei, tei + 1), ind2);
         arma::uvec edges_ind3 = edges(ord_det.subvec(tei, tei + 1), ind3);
         
-        if ((arma::sum(removable_nodes(edges_ind1)) == 2) & 
-            (arma::sum(removable_nodes(edges_ind2)) == 2) & 
+        if ((arma::sum(removable_nodes(edges_ind1)) == 2) && 
+            (arma::sum(removable_nodes(edges_ind2)) == 2) && 
             (arma::sum(removable_nodes(edges_ind3)) == 2)) {
           
           removable_nodes(edges_ind1).zeros();
@@ -225,7 +225,7 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         edges_ind2 = edges(ord_det(tei), 1);
         edges_ind3 = edges(ord_det(tei), 2);
         
-        if (!removable_nodes(edges_ind1).is_empty() & !removable_nodes(edges_ind2).is_empty() & !removable_nodes(edges_ind3).is_empty()) {
+        if (!removable_nodes(edges_ind1).is_empty() && !removable_nodes(edges_ind2).is_empty() && !removable_nodes(edges_ind3).is_empty()) {
           
           eitr = arma::resize(eitr, eitr.n_elem + 1, 1);
           eitr.tail(1) = tei;
@@ -456,9 +456,9 @@ Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, double lambda, double bal, arma::v
     arma::uword ind_c3 = decomp_hist(0, 2, i) - 1;
     
 
-    if ((protect(ind_c1) == 0) & (protect(ind_c2) == 0) & (protect(ind_c3) == 0)) {
+    if ((protect(ind_c1) == 0) && (protect(ind_c2) == 0) && (protect(ind_c3) == 0)) {
 
-      arma::uword logi_val = (details(i) > lambda) & (decomp_hist(3, 0, i) > bal) & (decomp_hist(3, 1, i) > bal);
+      arma::uword logi_val = (details(i) > lambda) && (decomp_hist(3, 0, i) > bal) && (decomp_hist(3, 1, i) > bal);
       arma::uvec logi_vec(slice_ind.n_elem, arma::fill::value(logi_val));
 
       decomp_hist.slice(i)(slice_ind) = decomp_hist.slice(i)(slice_ind) % logi_vec;

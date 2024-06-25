@@ -306,7 +306,7 @@ arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
   
   arma::umat cp(0, 1);
   
-  if ((survived_edges.n_elem > 0) & (survived_edges.n_cols > 1)) {
+  if ((survived_edges.n_elem > 0) && (survived_edges.n_cols > 1)) {
     arma::uword i = 0;
     
     while (i < survived_edges.n_cols - 1) {
@@ -330,19 +330,19 @@ arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
       
       arma::uvec iv = {i};
       
-      if ((survived_edges(3, i) != 0) & (survived_edges_sub1(0) == 1) & (survived_edges_sub2(0) == 1)) {
+      if ((survived_edges(3, i) != 0) && (survived_edges_sub1(0) == 1) && (survived_edges_sub2(0) == 1)) {
         cp = arma::join_vert(cp, survived_edges(row_13, iv));
         i = i + 2;
       }
-      else if ((survived_edges(3, i) != 0) & (survived_edges_sub1(1) == 1) & (survived_edges_sub2(0) == 1)) {
+      else if ((survived_edges(3, i) != 0) && (survived_edges_sub1(1) == 1) && (survived_edges_sub2(0) == 1)) {
         cp = arma::join_vert(cp, survived_edges(row_13, iv + 1));
         i = i + 2;
       }
-      else if ((survived_edges(3, i) == 0) & (survived_edges_sub1(0) == 1) & (survived_edges_sub1(1) != 1)) {
+      else if ((survived_edges(3, i) == 0) && (survived_edges_sub1(0) == 1) && (survived_edges_sub1(1) != 1)) {
         cp = arma::join_vert(cp, survived_edges(row_13, iv));
         i = i + 1;
       }
-      else if ((survived_edges(3, i) == 0) & (survived_edges_sub1(0) == 1) & (survived_edges_sub1(1) == 1) & (matched.n_elem > 0)) {
+      else if ((survived_edges(3, i) == 0) && (survived_edges_sub1(0) == 1) && (survived_edges_sub1(1) == 1) && (matched.n_elem > 0)) {
         cp = arma::join_vert(cp, survived_edges(row_12, iv));
         i = i + 1;
       }
@@ -359,11 +359,11 @@ arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
   else if ((survived_edges.n_elem > 0)) {
     arma::uvec survived_edges_sub0 = arma::diff(survived_edges(0, 0, arma::size(3, 1)));
     
-    if ((survived_edges.n_cols == 1) & (survived_edges.row(3)(0) == 0) & (survived_edges_sub0(0) == 1) & (survived_edges_sub0(1) != 1)) {
+    if ((survived_edges.n_cols == 1) && (survived_edges.row(3)(0) == 0) && (survived_edges_sub0(0) == 1) && (survived_edges_sub0(1) != 1)) {
       
       cp = arma::join_vert(cp, survived_edges(row_13, iv));
     }
-    else if ((survived_edges.n_cols == 1) & (survived_edges.row(3)(0) == 0) & (survived_edges_sub0(0) == 1) & (survived_edges_sub0(1) == 1)) {
+    else if ((survived_edges.n_cols == 1) && (survived_edges.row(3)(0) == 0) && (survived_edges_sub0(0) == 1) && (survived_edges_sub0(1) == 1)) {
       
       cp = arma::join_vert(cp, survived_edges(row_12, iv));
     }
@@ -372,7 +372,7 @@ arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
     arma::umat cp(0, 1);
   }
   
-  if ((n == 3) & (cp.n_elem > 0) & (survived_edges.n_cols == 1)) {
+  if ((n == 3) && (cp.n_elem > 0) && (survived_edges.n_cols == 1)) {
     cp.shed_row(0);
     cp.resize(cp.n_elem + 1);
     cp(cp.n_elem - 1) = n;
