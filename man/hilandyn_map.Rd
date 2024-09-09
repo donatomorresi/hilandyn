@@ -7,7 +7,7 @@
 hilandyn_map(
   sr_data,
   si_data,
-  nob_data,
+  nob_data = NULL,
   out_path = NULL,
   sr_ind = NULL,
   si_ind = NULL,
@@ -73,31 +73,32 @@ hilandyn_map(
 }
 \value{
 If \code{out_path} is \code{NULL}, a \code{SpatRaster} containing the following layers.
-\item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single layer).}
-\item{D_FST_MD}{Median among bands using values of \code{D_FST} (single layer).}
-\item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single layer).}
-\item{D_MAX_YR}{Year corresponding to \code{D_MAX_MD} (single layer).}
-\item{D_FST_YR}{Year corresponding to \code{D_FST_MD} (single layer).}
-\item{G_MAX_YR}{Year corresponding to \code{G_MAX_MD} (single layer).}
-\item{D_MAX_DR}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single layer).}
-\item{D_FST_DR}{Duration of the disturbance corresponding to \code{D_FST_MD} (single layer).}
-\item{G_MAX_DR}{Duration of the greening corresponding to \code{G_MAX_MD} (single layer).}
-\item{D_MAX_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single layer).}
-\item{D_FST_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single layer).}
-\item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single layer).}
-\item{N_GAP}{Number of gaps in the time series, if any (single layer).}
-\item{N_NOISE}{Number of years containing impulsive noise, if any (single layer).}
-\item{RMSE}{Root mean square error of each band in the focal cell (one layer per band).}
-\item{LEN}{Length of segments (one layer per year).}
-\item{CPT_ID}{Type of change (one layer per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+\item{D_MAX_YR}{Year corresponding to the disturbance event with the maximum spectral change magnitude \code{D_MAX_MG} (single value).}
+\item{D_MAX_MG}{Maximum spectral change magnitude of any disturbance computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_FRS_YR}{Year corresponding to the first disturbance event (single value).}
+\item{D_FRS_MG}{Spectral change magnitude of the first disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_LST_YR}{Year corresponding to the last disturbance event (single value).}
+\item{D_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_NUM}{Total number of disturbance events (single value).}
+\item{G_MAX_YR}{Year corresponding to the greening event with the maximum spectral change magnitude \code{G_MAX_MG} (single value).}
+\item{G_MAX_MG}{Maximum spectral change magnitude of greening computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_FRS_YR}{Year corresponding to the first greening event (single value).}
+\item{G_FRS_MG}{Spectral change magnitude of the first greening event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_LST_YR}{Year corresponding to the last disturbance event (single value).}
+\item{G_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_NUM}{Total number of greening events (single value).}
+\item{N_GAP}{Number of gaps in the time series, if any (single value).}
+\item{N_NOISE}{Number of years containing impulsive noise, if any (single value).}
+\item{RMSE}{Root mean square error of each band in the focal cell (one value per band).}
+\item{LEN}{Length of segments (one value per year).}
+\item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise 0 for no change.}
 \item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-\item{NOISE}{Impulsive noise (one layer per year).}
-\item{D_DUR}{Duration of disturbance (one layer per year).}
-\item{G_DUR}{Duration of greening (one layer per year).}
-\item{EST}{Estimated values of the bands in the focal cell (one layer per year and band).}
-\item{SLO}{Slope of the linear segments of the bands in the focal cell (one layer per year and band).}
-\item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one layer per year and band).}
-\item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one layer per year and band).}
+\item{NOISE}{Position of the impulsive noise in the time series (one value per year).}
+\item{MED_REL_MAG}{Median relative magnitude computed using all the cells in the spatial kernel and the bands.}
+\item{EST}{Estimated values of the bands in the focal cell (one value per year and band).}
+\item{SLO}{Slope of the linear segments of the bands in the focal cell (one value per year and band).}
+\item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one value per year and band).}
+\item{REL_MAG}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
 }
 \description{
 This is the main function of the package.
@@ -122,15 +123,15 @@ lnd_sr <- terra::rast(lnd_sr)
 lnd_si <- terra::rast(lnd_si)
 
 # Process data
-rsout <- hilandyn_map(sr_data = "lnd_sr",
-                      si_data = "lnd_si",
+rsout <- hilandyn_map(sr_data = lnd_sr,
+                      si_data = lnd_si,
                       nob_data = NULL,
                       years = 1985:2020,
                       cng_dir = c(-1, -1, 1, 1),
                       cores = 1)
 
 # Plot the maximum disturbance magnitude and the corresponding year
-terra::plot(rsout[["D_MAX_MD"]])
+terra::plot(rsout[["D_MAX_MG"]])
 terra::plot(rsout[["D_MAX_YR"]])
 
 

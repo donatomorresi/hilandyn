@@ -34,31 +34,32 @@
 #' @param cores integer. Number of CPU cores employed for parallelising the analysis.
 #'
 #' @return If \code{out_path} is \code{NULL}, a \code{SpatRaster} containing the following layers.
-#'   \item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single layer).}
-#'   \item{D_FST_MD}{Median among bands using values of \code{D_FST} (single layer).}
-#'   \item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single layer).}
-#'   \item{D_MAX_YR}{Year corresponding to \code{D_MAX_MD} (single layer).}
-#'   \item{D_FST_YR}{Year corresponding to \code{D_FST_MD} (single layer).}
-#'   \item{G_MAX_YR}{Year corresponding to \code{G_MAX_MD} (single layer).}
-#'   \item{D_MAX_DR}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single layer).}
-#'   \item{D_FST_DR}{Duration of the disturbance corresponding to \code{D_FST_MD} (single layer).}
-#'   \item{G_MAX_DR}{Duration of the greening corresponding to \code{G_MAX_MD} (single layer).}
-#'   \item{D_MAX_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single layer).}
-#'   \item{D_FST_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single layer).}
-#'   \item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single layer).}
-#'   \item{N_GAP}{Number of gaps in the time series, if any (single layer).}
-#'   \item{N_NOISE}{Number of years containing impulsive noise, if any (single layer).}
-#'   \item{RMSE}{Root mean square error of each band in the focal cell (one layer per band).}
-#'   \item{LEN}{Length of segments (one layer per year).}
-#'   \item{CPT_ID}{Type of change (one layer per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+#'   \item{D_MAX_YR}{Year corresponding to the disturbance event with the maximum spectral change magnitude \code{D_MAX_MG} (single value).}
+#'   \item{D_MAX_MG}{Maximum spectral change magnitude of any disturbance computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{D_FRS_YR}{Year corresponding to the first disturbance event (single value).}
+#'   \item{D_FRS_MG}{Spectral change magnitude of the first disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{D_LST_YR}{Year corresponding to the last disturbance event (single value).}
+#'   \item{D_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{D_NUM}{Total number of disturbance events (single value).}
+#'   \item{G_MAX_YR}{Year corresponding to the greening event with the maximum spectral change magnitude \code{G_MAX_MG} (single value).}
+#'   \item{G_MAX_MG}{Maximum spectral change magnitude of greening computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{G_FRS_YR}{Year corresponding to the first greening event (single value).}
+#'   \item{G_FRS_MG}{Spectral change magnitude of the first greening event computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{G_LST_YR}{Year corresponding to the last disturbance event (single value).}
+#'   \item{G_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+#'   \item{G_NUM}{Total number of greening events (single value).}
+#'   \item{N_GAP}{Number of gaps in the time series, if any (single value).}
+#'   \item{N_NOISE}{Number of years containing impulsive noise, if any (single value).}
+#'   \item{RMSE}{Root mean square error of each band in the focal cell (one value per band).}
+#'   \item{LEN}{Length of segments (one value per year).}
+#'   \item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise 0 for no change.}
 #'   \item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-#'   \item{NOISE}{Impulsive noise (one layer per year).}
-#'   \item{D_DUR}{Duration of disturbance (one layer per year).}
-#'   \item{G_DUR}{Duration of greening (one layer per year).}
-#'   \item{EST}{Estimated values of the bands in the focal cell (one layer per year and band).}
-#'   \item{SLO}{Slope of the linear segments of the bands in the focal cell (one layer per year and band).}
-#'   \item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one layer per year and band).}
-#'   \item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one layer per year and band).}
+#'   \item{NOISE}{Position of the impulsive noise in the time series (one value per year).}
+#'   \item{MED_REL_MAG}{Median relative magnitude computed using all the cells in the spatial kernel and the bands.}
+#'   \item{EST}{Estimated values of the bands in the focal cell (one value per year and band).}
+#'   \item{SLO}{Slope of the linear segments of the bands in the focal cell (one value per year and band).}
+#'   \item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one value per year and band).}
+#'   \item{REL_MAG}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
 #'
 #' @author Donato Morresi, \email{donato.morresi@@unito.it}
 #'
@@ -77,22 +78,21 @@
 #' lnd_si <- terra::rast(lnd_si)
 #'
 #' # Process data
-#' rsout <- hilandyn_map(sr_data = "lnd_sr",
-#'                       si_data = "lnd_si",
+#' rsout <- hilandyn_map(sr_data = lnd_sr,
+#'                       si_data = lnd_si,
 #'                       nob_data = NULL,
 #'                       years = 1985:2020,
 #'                       cng_dir = c(-1, -1, 1, 1),
 #'                       cores = 1)
 #'
 #' # Plot the maximum disturbance magnitude and the corresponding year
-#' terra::plot(rsout[["D_MAX_MD"]])
+#' terra::plot(rsout[["D_MAX_MG"]])
 #' terra::plot(rsout[["D_MAX_YR"]])
 #' 
 #'
 #' @export
 #' @import Rcpp
 #' @import RcppArmadillo
-#' @import matrixStats
 #' @import terra
 #' @import foreach
 #' @import future
@@ -102,7 +102,7 @@
 #' @importFrom Rdpack reprompt
 
 
-hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = NULL, si_ind = NULL, nob_ind = NULL, years, win_side = 3, cell_weights = TRUE, cng_dir, th_const = 1, noise_iter_max = 2, nob_init_min = 5, rmse = TRUE, use_last = TRUE, expand = TRUE, roi_vec = NULL, clip_input = FALSE, n_copy = 4, cores = 1) { 
+hilandyn_map <- function(sr_data, si_data, nob_data = NULL, out_path = NULL, sr_ind = NULL, si_ind = NULL, nob_ind = NULL, years, win_side = 3, cell_weights = TRUE, cng_dir, th_const = 1, noise_iter_max = 2, nob_init_min = 5, rmse = TRUE, use_last = TRUE, expand = TRUE, roi_vec = NULL, clip_input = FALSE, n_copy = 4, cores = 1) { 
 
   if (is.null(sr_data) && is.null(si_data)) {
     stop("missing input data")
@@ -115,19 +115,17 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
   message("\nLoading raster data ...")
 
   if (!is.null(sr_data)) {
-    
-    if (!is.character(sr_data)) {
-      stop("sr_data must be a character variable")
-    }
-      
-    if (dir.exists(sr_data)) {
-      f <- list.files(sr_data, ".tif$", full.names = TRUE)
-      sr_data <- lapply(f, function(x) rast(x, lyrs = sr_ind))  # add the index for the number of observations
-      sr_data <- do.call(c, sr_data)
+    if (is.character(sr_data)) {
+      if (dir.exists(sr_data)) {
+        f <- list.files(sr_data, ".tif$", full.names = TRUE)
+        sr_data <- lapply(f, function(x) rast(x, lyrs = sr_ind))  # add the index for the number of observations
+        sr_data <- do.call(c, sr_data)
+      }
+      else {
+        stop("can't find reflectance data")
+      }
     }
     else {
-      sr_data <- get(sr_data)
-      
       if (!inherits(sr_data, "SpatRaster")) {
         stop("can't load reflectance data")
       }
@@ -135,19 +133,17 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
   }
   
   if (!is.null(si_data)) {
-    
-    if (!is.character(si_data)) {
-      stop("si_data must be a character variable")
-    }
-    
-    if (dir.exists(si_data)) {
-      f <- list.files(si_data, ".tif$", full.names = TRUE)
-      si_data <- lapply(f, function(x) rast(x, lyrs = si_ind))
-      si_data <- do.call(c, si_data)
+    if (is.character(si_data)) {
+      if (dir.exists(si_data)) {
+        f <- list.files(si_data, ".tif$", full.names = TRUE)
+        si_data <- lapply(f, function(x) rast(x, lyrs = si_ind))  # add the index for the number of observations
+        si_data <- do.call(c, si_data)
+      }
+      else {
+        stop("can't find spectral indices data")
+      }
     }
     else {
-      si_data <- get(si_data)
-      
       if (!inherits(si_data, "SpatRaster")) {
         stop("can't load spectral indices data")
       }
@@ -155,25 +151,23 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
   }
   
   if (!is.null(nob_data)) {
-    
-    if (!is.character(nob_data)) {
-      stop("nob_data must be a character variable")
-    }
-    
-    if (dir.exists(nob_data)) {
-      f <- list.files(nob_data, ".tif$", full.names = TRUE)
-      nob_data <- lapply(f, function(x) rast(x, lyrs = nob_ind))
-      nob_data <- do.call(c, nob_data)
+    if (is.character(nob_data)) {
+      if (dir.exists(nob_data)) {
+        f <- list.files(nob_data, ".tif$", full.names = TRUE)
+        nob_data <- lapply(f, function(x) rast(x, lyrs = nob_ind))  # add the index for the number of observations
+        nob_data <- do.call(c, nob_data)
+      }
+      else {
+        stop("can't find number of observations data")
+      }
     }
     else {
-      nob_data <- get(nob_data)
-      
       if (!inherits(nob_data, "SpatRaster")) {
-        stop("can't load data relative to the number of observations")
+        stop("can't load number of observations data")
       }
     }
   }
-      
+  
   if (!is.null(sr_data) & !is.null(si_data)) {
     sr_mi <- matrix(seq_len(nlyr(sr_data)), ncol = nlyr(sr_data) / length(years), byrow = TRUE)
     si_mi <- matrix(seq_len(nlyr(si_data)), ncol = nlyr(si_data) / length(years), byrow = TRUE)
@@ -193,7 +187,6 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
     if (crs(roi) != crs(rs)) {
       roi <- project(roi, crs(rs))
     }
-    
     if (clip_input) {
       rs <- mask(crop(rs, roi), roi)
       nob_data <- mask(crop(nob_data, roi), roi)
@@ -221,17 +214,16 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
   nr <- nb * nc
   cell_ind <- matrix(seq_len(nr), nrow = nc)
   foc_cell <- win_side + floor(win_side / 2) + 1L
-  foc_ind <- cell_ind[foc_cell, ]
+  foc_ind <- cell_ind[foc_cell, ] - 1L
   cng_dir <- rep(cng_dir, each = nc)
 
   # Output layer names
-  valn <- c("D_MAX_MD", "D_FST_MD", "G_MAX_MD", "D_MAX_YR",          # single value
-            "D_FST_YR", "G_MAX_YR", "D_MAX_DR", "D_FST_DR",
-            "G_MAX_DR", "D_MAX_ID", "D_FST_ID", "G_MAX_ID",
+  valn <- c("D_MAX_YR", "D_MAX_MG", "D_FRS_YR", "D_FRS_MG", "D_LST_YR", "D_LST_MG", "D_NUM",
+            "G_MAX_YR", "G_MAX_MG", "G_FRS_YR", "G_FRS_MG", "G_LST_YR", "G_LST_MG", "G_NUM",
             "N_GAP", "N_NOISE")
   vec1n <- c("RMSE")                                                 # vector (bands)
-  vec2n <- c("LEN", "CPT_ID", "CPT_FOC", "NOISE", "D_DUR", "G_DUR")  # vector (years)
-  matn <- c("EST", "SLO", "MAG", "MAG_REL")                          # matrix
+  vec2n <- c("LEN", "CPT_ID", "CPT_FOC", "NOISE", "MED_REL_MAG")      # vector (years)
+  matn <- c("EST", "SLO", "MAG", "REL_MAG")                          # matrix
   
   # Compute number of output layers
   nout <- (length(valn) + length(vec1n) * nb + length(vec2n) * ny + length(matn) * nb * ny)
@@ -289,8 +281,7 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
   tic <- proc.time()
   
   for (i in seq_len(b$n)) {
-    
-    message("\nProcessing chunk #", i, " of ", b$n)
+    message("\nProcessing chunk #", i, "/", b$n)
     
     str_row <- b$row[i]
     n_rows <- b$nrows[i] + 2*hw
@@ -300,7 +291,7 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
       nob <- focal_values_cpp(nob_data@ptr$readValues(str_row-1, n_rows, 0, n_cols), c(n_rows, n_cols, nlyr(nob_data)), win_side)
     }
     else {
-      nob = rep(999L, nc*ny)
+      nob = matrix(rep(999L, nc*ny), ncol = 1)
     }
     
     if (cores > 1) {
@@ -312,24 +303,22 @@ hilandyn_map <- function(sr_data, si_data, nob_data, out_path = NULL, sr_ind = N
     }
     
     # Setup progress bar
-    handlers(global = TRUE)
-    on.exit(handlers(global = FALSE))
     p <- progressor(along = seq_len(ncol(v)))
     
     m <- foreach(j = seq_len(ncol(v)), .combine = 'cbind') %dofuture% {
       
       if (!is.null(nob_data)) {
         p()
-        hilandyn_int(v[,j], nob[,j], nb, nc, ny, nr, years, foc_ind, cell_weights, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
+        hilandyn_int_cpp(v[, j, drop = F], nob[,j, drop = F], nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
       }
       else {
         p()
-        hilandyn_int(v[,j], nob, nb, nc, ny, nr, years, foc_ind, cell_weights, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
+        hilandyn_int_cpp(v[, j, drop = F], nob, nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
       }
     }
     writeValues(out, t(m), str_row, b$nrows[i])
   }
-  
+    
   toc <- proc.time()
   elapsed <- round(seconds_to_period((toc - tic)[3]))
   message("\nProcessing took ", elapsed)

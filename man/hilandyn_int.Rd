@@ -61,34 +61,35 @@ hilandyn_int(
 }
 \value{
 If \code{as_list} is \code{TRUE}, a \code{list} containing the following elements. Otherwise the result is a \code{numeric} \code{vector}.
-\item{D_MAX_MD}{Median among bands using values of \code{D_MAX} (single value).}
-\item{D_FST_MD}{Median among bands using values of \code{D_FST} (single value).}
-\item{G_MAX_MD}{Median among bands using values of \code{G_MAX} (single value).}
-\item{D_MAX_YR}{Year corresponding to \code{D_MAX_MD} (single value).}
-\item{D_FST_YR}{Year corresponding to \code{D_FST_MD} (single value).}
-\item{G_MAX_YR}{Year corresponding to \code{G_MAX_MD} (single value).}
-\item{D_MAX_DR}{Duration of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-\item{D_FST_DR}{Duration of the disturbance corresponding to \code{D_FST_MD} (single value).}
-\item{G_MAX_DR}{Duration of the greening corresponding to \code{G_MAX_MD} (single value).}
-\item{D_MAX_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_MAX_MD} (single value).}
-\item{D_FST_ID}{Type of change (\code{CPT_ID}) of the disturbance corresponding to \code{D_FST_MD} (single value).}
-\item{G_MAX_ID}{Type of change (\code{CPT_ID}) of the greening corresponding to \code{G_MAX_MD} (single value).}
+\item{D_MAX_YR}{Year corresponding to the disturbance event with the maximum spectral change magnitude \code{D_MAX_MG} (single value).}
+\item{D_MAX_MG}{Maximum spectral change magnitude of any disturbance computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_FRS_YR}{Year corresponding to the first disturbance event (single value).}
+\item{D_FRS_MG}{Spectral change magnitude of the first disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_LST_YR}{Year corresponding to the last disturbance event (single value).}
+\item{D_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{D_NUM}{Total number of disturbance events (single value).}
+\item{G_MAX_YR}{Year corresponding to the greening event with the maximum spectral change magnitude \code{G_MAX_MG} (single value).}
+\item{G_MAX_MG}{Maximum spectral change magnitude of greening computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_FRS_YR}{Year corresponding to the first greening event (single value).}
+\item{G_FRS_MG}{Spectral change magnitude of the first greening event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_LST_YR}{Year corresponding to the last disturbance event (single value).}
+\item{G_LST_MG}{Spectral change magnitude of the last disturbance event computed as the median of bands and cells within the spatial kernel (single value).}
+\item{G_NUM}{Total number of greening events (single value).}
 \item{N_GAP}{Number of gaps in the time series, if any (single value).}
 \item{N_NOISE}{Number of years containing impulsive noise, if any (single value).}
 \item{RMSE}{Root mean square error of each band in the focal cell (one value per band).}
 \item{LEN}{Length of segments (one value per year).}
-\item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise \code{NA} for no change.}
+\item{CPT_ID}{Type of change (one value per year). One of the following values: 101 (disturbance); 102 (greening); 9 (other change). Otherwise 0 for no change.}
 \item{CPT_FOC}{Number of changepoints detected in the focal cell. The minimum value is zero and the maximum corresponds to the number of bands.}
-\item{NOISE}{Impulsive noise (one value per year).}
-\item{D_DUR}{Duration of disturbance (one value per year).}
-\item{G_DUR}{Duration of greening (one value per year).}
+\item{NOISE}{Position of the impulsive noise in the time series (one value per year).}
+\item{MED_REL_MAG}{Median relative magnitude computed using all the cells in the spatial kernel and the bands.}
 \item{EST}{Estimated values of the bands in the focal cell (one value per year and band).}
 \item{SLO}{Slope of the linear segments of the bands in the focal cell (one value per year and band).}
 \item{MAG}{Magnitude in absolute terms of the bands in the focal cell (one value per year and band).}
-\item{MAG_REL}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
+\item{REL_MAG}{Magnitude in relative terms of the bands in the focal cell (one value per year and band).}
 }
 \description{
-This is the internal function called by \code{\link{hilandyn_map}}.
+This function is intended to analyse the data extracted from the cells within a single spatial kernel.
 }
 \details{
 Typically, \code{hilandyn_int()} is not directly called by the user.
@@ -127,7 +128,7 @@ out <- hilandyn_int(v,
                     nr = length(bands) * nc,
                     yrs = years,
                     foc_ind = foc_ind,
-                    cng_dir = cng_dir,
+                    cng_dir = rep(cng_dir, each = nc),
                     as_list = TRUE)
                 
 # Plot results
@@ -137,9 +138,9 @@ par(mfrow=c(length(bands), 1))
 for(i in seq_along(bands)) {
   plot(v[foc_ind[i],], type = "l", col = 2, lwd = 2, ylab = "", xlab = "", xaxt = "n")
   lines(out$EST[i,], type = "l", col = 4, lwd = 2, lty = 1)
-  abline(v = which(out$CPT_ID \%in\% c(101, 201)), lty = 2, col = 2, lwd = 2)
+  abline(v = which(out$CPT_ID \%in\% c(101)), lty = 2, col = 2, lwd = 2)
   axis(1, at = seq_along(years), labels = years)
-  title(main = paste(bands[i], "(RMSE =", out$RMSE[i,], ")"), adj = 0)
+  title(main = paste(bands[i], "(RMSE =", out$RMSE[i], ")"), adj = 0)
 }
 
 }

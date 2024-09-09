@@ -175,7 +175,7 @@ arma::vec rmse_cpp(arma::mat x, arma::mat y, arma::uvec foc_ind) {
 // [[Rcpp::export]]
 arma::umat cpt_cnd_cpp(arma::mat x, arma::mat y, arma::mat nob, arma::uvec cpt, arma::uword nb, arma::uword nc, arma::uword nob_init_min) {
   
-  cpt -= 1;                          // for compatibility between C++ and R
+  // cpt -= 1;                          // for compatibility between C++ and R
   arma::uword ncol = 4 + x.n_cols;
   arma::umat chk_mat(0, ncol);       // information on time points (length, start, end, condition for verification, indices of the observations to be removed)
   
@@ -228,7 +228,6 @@ arma::umat cpt_cnd_cpp(arma::mat x, arma::mat y, arma::mat nob, arma::uvec cpt, 
         arma::mat dst_mat(nb, col_seq_ind.n_elem);
 
         for (arma::uword j = 0; j < col_seq_ind.n_elem; j++) {
-          
           if (col_seq_ind[j] == 0 || col_seq_ind[j] == x.n_cols - 1) {
             continue;
           }
@@ -329,10 +328,10 @@ arma::umat cpt_cnd_cpp(arma::mat x, arma::mat y, arma::mat nob, arma::uvec cpt, 
 
 
 // [[Rcpp::export]]
-Rcpp::List proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma::uvec cpt, arma::vec sd, arma::vec mad_bias, arma::vec wgts, arma::uword nc, arma::uword nb, double th_const) {
+arma::mat proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma::uvec cpt, arma::vec sd, arma::vec mad_bias, arma::vec wgts, arma::uword nc, arma::uword nb, double th_const) {
   
-  cpt -= 1;
-  arma::uvec tpa(x.n_cols);
+  // cpt -= 1;
+  arma::rowvec tpa(x.n_cols);
   
   arma::umat row_ind_mat(nc, nb);
   arma::uvec ind_all = arma::regspace<arma::uvec>(0, x.n_rows - 1);
@@ -377,12 +376,11 @@ Rcpp::List proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma
 
     arma::vec sd_new = sd_est_cpp(x(row_ind, col_ind), mad_bias);
 
-    if (any(sd_new) == 0) {
+    if (any(sd_new == 0)) {
       sd_new = sd(row_ind);
     }
-
+  
     Rcpp::List y = hd_bts_cpt_cpp(x(row_ind, col_ind), sd_new, band_ind.n_elem, th_const, wgts(row_ind), foc_ind_new);
-
     arma::uword n_pre;
     if (rm_ind[0] < chk_mat(i, 1)) {
       n_pre = chk_mat(i, 1) - rm_ind[0];
@@ -394,7 +392,7 @@ Rcpp::List proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma
     arma::uvec cpt_chk = { chk_mat(i, 1) };
     cpt_chk -= n_pre;
     arma::uvec cpt_tst = Rcpp::as<arma::uvec>(y["cpt"]) - 1;           // for compatibility between R and C++
-
+    
     arma::vec match_cpt_ind = match_cpp(cpt_tst, cpt_chk);
     match_cpt_ind = match_cpt_ind(arma::find_finite(match_cpt_ind));
 
@@ -412,26 +410,17 @@ Rcpp::List proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma
       
       arma::uvec rm_ind = arma::find(chk_mat(j, arma::span(4, chk_mat.n_cols - 1)) == 1);
 
-      if (rm_ind[0] == 0) {
+      if (rm_ind[0] == 0) {                                     // extrapolate at the beginning
         x.cols(rm_ind) = arma::repmat(arma::mean(x.cols(rm_ind[rm_ind.n_elem - 1] + 1, rm_ind[rm_ind.n_elem - 1] + 2), 1), 1, rm_ind.n_elem);
       }
       else if (rm_ind[rm_ind.n_elem - 1] == x.n_cols - 1) {     // extrapolate at the end
         x.cols(rm_ind) = arma::repmat(arma::mean(x.cols(rm_ind[0] - 1, rm_ind[0] - 2), 1), 1, rm_ind.n_elem);
       }
-      else {                    // interpolate
+      else {                                                    // interpolate
         x.cols(rm_ind) = arma::repmat(arma::mean(arma::join_horiz(x.col(rm_ind[0] - 1), x.col(rm_ind[rm_ind.n_elem - 1] + 1)), 1), 1, rm_ind.n_elem);
       }
-      
       tpa(rm_ind).ones();
     }
-    
-    y = hd_bts_cpt_cpp(x, sd, nb, th_const, wgts, foc_ind);
   }
-  
-  tpa = arma::find(tpa == 1);
-  tpa += 1;
-  
-  return Rcpp::List::create(Rcpp::Named("x") = x,
-                            Rcpp::Named("y") = y,
-                            Rcpp::Named("tpa") = tpa);
+  return arma::join_vert(x, tpa);
 }
