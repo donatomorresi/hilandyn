@@ -74,13 +74,12 @@ arma::mat orth_matrix_cpp(arma::rowvec d) {
 
 
 // [[Rcpp::export]]
-Rcpp::List updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, arma::rowvec bts_c, arma::uvec idx) {
+arma::vec updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, arma::rowvec bts_c, arma::uvec idx) {
   
   arma::mat wc0, wl0, tc0, wc1, wl1, tc1;
   wc0 = wl0 = tc0 = wc1 = wl1 = tc1 = arma::mat(ee.n_rows, 3, arma::fill::none);
   
   for (arma::uword i = 0; i < 3; ++i) {
-    
     wc0.col(i) = wgt_const(ee.col(i));
     wl0.col(i) = wgt_lin(ee.col(i));
     tc0.col(i) = bts_c(ee.col(i));
@@ -96,18 +95,12 @@ Rcpp::List updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, a
   arma::mat M0(9, m.n_rows, arma::fill::none);
   
   for (arma::uword i = 0; i < m.n_rows; ++i) {
-    M0.col(i) = orth_matrix_cpp(h.col(i).t()).as_col(); 
+    M0.col(i) = orth_matrix_cpp(h.col(i).t()).as_col();
   }
-  
-  //arma::inplace_trans(M0);
   
   arma::umat m_i = { {0,1,2}, {3,4,5}, {6,7,8} };
   
   for(arma::uword i = 0; i < 3; ++i) {
-    
-    // wc1.col(i) = arma::sum(wc0 % M0.cols(m_i.col(i)), 1);
-    // wl1.col(i) = arma::sum(wl0 % M0.cols(m_i.col(i)), 1);
-    // tc1.col(i) = arma::sum(tc0 % M0.cols(m_i.col(i)), 1);
     wc1.col(i) = arma::sum(wc0.t() % M0.rows(m_i.col(i)), 0);
     wl1.col(i) = arma::sum(wl0.t() % M0.rows(m_i.col(i)), 0);
     tc1.col(i) = arma::sum(tc0.t() % M0.rows(m_i.col(i)), 0);
@@ -134,13 +127,10 @@ Rcpp::List updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, a
   wgt_lin(eating_up0) = wl1.col(1);
   wgt_lin(eating_up1) = wl1.col(2);
   
-  return Rcpp::List::create(Rcpp::Named("weights_const") = wgt_const,
-                            Rcpp::Named("weights_lin") = wgt_lin,
-                            Rcpp::Named("bts_coeffs") = bts_c,
-                            Rcpp::Named("idx") = idx1,
-                            Rcpp::Named("h") = h,
-                            Rcpp::Named("tc1") = tc1);
+  arma::vec sep_vec = { arma::datum::nan };
   
+  return arma::join_vert(wgt_const, wgt_lin, bts_c.t(),
+                         arma::join_vert(h.as_col(), tc1.t().as_col(), sep_vec, arma::conv_to<arma::vec>::from(idx1)));
 }
 
 
@@ -277,9 +267,8 @@ arma::mat balance_p_cpp(arma::umat pr, arma::umat ee_p1, arma::umat ee_p2, arma:
 
 
 // [[Rcpp::export]]
-arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
+arma::uvec finding_cp_cpp(Rcpp::List bts_obj, arma::uword n) {
   
-  const arma::uword n = Rcpp::as<arma::uword>(bts_obj["n"]);
   arma::uvec sameboat = Rcpp::as<arma::uvec>(bts_obj["sameboat"]);
   arma::cube decomp_hist = Rcpp::as<arma::cube>(bts_obj["decomp_hist"]);
   
@@ -384,8 +373,6 @@ arma::uvec finding_cp_cpp(Rcpp::List bts_obj) {   //Rcpp::NumericVector
   if (cp.n_elem > 0) {
     cp -= 1;
   }
-  
-  //return Rcpp::NumericVector(cp.begin(), cp.end());
   return cp;
 }
 

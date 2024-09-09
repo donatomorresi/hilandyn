@@ -11,6 +11,33 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
+// hilandyn_int_cpp
+arma::vec hilandyn_int_cpp(arma::mat x, arma::mat nob, arma::uword nb, arma::uword nc, arma::uword ny, arma::uword nr, arma::uvec yrs, arma::uvec foc_ind, arma::uword cell_weights, arma::vec n_times_eBias_of_mad, arma::vec ev, arma::ivec cng_dir, double th_const, arma::uword noise_iter_max, arma::uword nob_init_min, arma::uword rmse, arma::uword use_last);
+RcppExport SEXP _hilandyn_hilandyn_int_cpp(SEXP xSEXP, SEXP nobSEXP, SEXP nbSEXP, SEXP ncSEXP, SEXP nySEXP, SEXP nrSEXP, SEXP yrsSEXP, SEXP foc_indSEXP, SEXP cell_weightsSEXP, SEXP n_times_eBias_of_madSEXP, SEXP evSEXP, SEXP cng_dirSEXP, SEXP th_constSEXP, SEXP noise_iter_maxSEXP, SEXP nob_init_minSEXP, SEXP rmseSEXP, SEXP use_lastSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type nob(nobSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nb(nbSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nc(ncSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type ny(nySEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nr(nrSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type yrs(yrsSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type foc_ind(foc_indSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type cell_weights(cell_weightsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type n_times_eBias_of_mad(n_times_eBias_of_madSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type ev(evSEXP);
+    Rcpp::traits::input_parameter< arma::ivec >::type cng_dir(cng_dirSEXP);
+    Rcpp::traits::input_parameter< double >::type th_const(th_constSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type noise_iter_max(noise_iter_maxSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nob_init_min(nob_init_minSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type rmse(rmseSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type use_last(use_lastSEXP);
+    rcpp_result_gen = Rcpp::wrap(hilandyn_int_cpp(x, nob, nb, nc, ny, nr, yrs, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rle_cpp
 arma::umat rle_cpp(arma::uvec x);
 RcppExport SEXP _hilandyn_rle_cpp(SEXP xSEXP) {
@@ -102,7 +129,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // proc_cpt_cpp
-Rcpp::List proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma::uvec cpt, arma::vec sd, arma::vec mad_bias, arma::vec wgts, arma::uword nc, arma::uword nb, double th_const);
+arma::mat proc_cpt_cpp(arma::mat x, arma::umat cptind, arma::umat chk_mat, arma::uvec cpt, arma::vec sd, arma::vec mad_bias, arma::vec wgts, arma::uword nc, arma::uword nb, double th_const);
 RcppExport SEXP _hilandyn_proc_cpt_cpp(SEXP xSEXP, SEXP cptindSEXP, SEXP chk_matSEXP, SEXP cptSEXP, SEXP sdSEXP, SEXP mad_biasSEXP, SEXP wgtsSEXP, SEXP ncSEXP, SEXP nbSEXP, SEXP th_constSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -135,40 +162,43 @@ BEGIN_RCPP
 END_RCPP
 }
 // hd_bts_dns_cpp
-Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, double lambda, double bal, arma::vec w, arma::uvec foc_ind);
-RcppExport SEXP _hilandyn_hd_bts_dns_cpp(SEXP bts_objSEXP, SEXP lambdaSEXP, SEXP balSEXP, SEXP wSEXP, SEXP foc_indSEXP) {
+Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, arma::uword n, double lambda, double bal, arma::vec w, arma::uvec foc_ind);
+RcppExport SEXP _hilandyn_hd_bts_dns_cpp(SEXP bts_objSEXP, SEXP nSEXP, SEXP lambdaSEXP, SEXP balSEXP, SEXP wSEXP, SEXP foc_indSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bts_obj(bts_objSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< double >::type bal(balSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
     Rcpp::traits::input_parameter< arma::uvec >::type foc_ind(foc_indSEXP);
-    rcpp_result_gen = Rcpp::wrap(hd_bts_dns_cpp(bts_obj, lambda, bal, w, foc_ind));
+    rcpp_result_gen = Rcpp::wrap(hd_bts_dns_cpp(bts_obj, n, lambda, bal, w, foc_ind));
     return rcpp_result_gen;
 END_RCPP
 }
 // hd_bts_inv_cpp
-Rcpp::List hd_bts_inv_cpp(Rcpp::List bts_obj);
-RcppExport SEXP _hilandyn_hd_bts_inv_cpp(SEXP bts_objSEXP) {
+Rcpp::List hd_bts_inv_cpp(Rcpp::List bts_obj, arma::uword n);
+RcppExport SEXP _hilandyn_hd_bts_inv_cpp(SEXP bts_objSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bts_obj(bts_objSEXP);
-    rcpp_result_gen = Rcpp::wrap(hd_bts_inv_cpp(bts_obj));
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(hd_bts_inv_cpp(bts_obj, n));
     return rcpp_result_gen;
 END_RCPP
 }
 // hd_bts_pp1_cpp
-Rcpp::List hd_bts_pp1_cpp(Rcpp::List bts_obj, double lambda);
-RcppExport SEXP _hilandyn_hd_bts_pp1_cpp(SEXP bts_objSEXP, SEXP lambdaSEXP) {
+Rcpp::List hd_bts_pp1_cpp(Rcpp::List bts_obj, arma::uword n, double lambda);
+RcppExport SEXP _hilandyn_hd_bts_pp1_cpp(SEXP bts_objSEXP, SEXP nSEXP, SEXP lambdaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bts_obj(bts_objSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
-    rcpp_result_gen = Rcpp::wrap(hd_bts_pp1_cpp(bts_obj, lambda));
+    rcpp_result_gen = Rcpp::wrap(hd_bts_pp1_cpp(bts_obj, n, lambda));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -223,7 +253,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // updating_cpp
-Rcpp::List updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, arma::rowvec bts_c, arma::uvec idx);
+arma::vec updating_cpp(arma::umat ee, arma::vec wgt_const, arma::vec wgt_lin, arma::rowvec bts_c, arma::uvec idx);
 RcppExport SEXP _hilandyn_updating_cpp(SEXP eeSEXP, SEXP wgt_constSEXP, SEXP wgt_linSEXP, SEXP bts_cSEXP, SEXP idxSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -268,13 +298,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // finding_cp_cpp
-arma::uvec finding_cp_cpp(Rcpp::List bts_obj);
-RcppExport SEXP _hilandyn_finding_cp_cpp(SEXP bts_objSEXP) {
+arma::uvec finding_cp_cpp(Rcpp::List bts_obj, arma::uword n);
+RcppExport SEXP _hilandyn_finding_cp_cpp(SEXP bts_objSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Rcpp::List >::type bts_obj(bts_objSEXP);
-    rcpp_result_gen = Rcpp::wrap(finding_cp_cpp(bts_obj));
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(finding_cp_cpp(bts_obj, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -291,6 +322,7 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_hilandyn_hilandyn_int_cpp", (DL_FUNC) &_hilandyn_hilandyn_int_cpp, 17},
     {"_hilandyn_rle_cpp", (DL_FUNC) &_hilandyn_rle_cpp, 1},
     {"_hilandyn_mad_cpp", (DL_FUNC) &_hilandyn_mad_cpp, 1},
     {"_hilandyn_sd_est_cpp", (DL_FUNC) &_hilandyn_sd_est_cpp, 2},
@@ -300,9 +332,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_hilandyn_cpt_cnd_cpp", (DL_FUNC) &_hilandyn_cpt_cnd_cpp, 7},
     {"_hilandyn_proc_cpt_cpp", (DL_FUNC) &_hilandyn_proc_cpt_cpp, 10},
     {"_hilandyn_hd_bts_dcmp_cpp", (DL_FUNC) &_hilandyn_hd_bts_dcmp_cpp, 3},
-    {"_hilandyn_hd_bts_dns_cpp", (DL_FUNC) &_hilandyn_hd_bts_dns_cpp, 5},
-    {"_hilandyn_hd_bts_inv_cpp", (DL_FUNC) &_hilandyn_hd_bts_inv_cpp, 1},
-    {"_hilandyn_hd_bts_pp1_cpp", (DL_FUNC) &_hilandyn_hd_bts_pp1_cpp, 2},
+    {"_hilandyn_hd_bts_dns_cpp", (DL_FUNC) &_hilandyn_hd_bts_dns_cpp, 6},
+    {"_hilandyn_hd_bts_inv_cpp", (DL_FUNC) &_hilandyn_hd_bts_inv_cpp, 2},
+    {"_hilandyn_hd_bts_pp1_cpp", (DL_FUNC) &_hilandyn_hd_bts_pp1_cpp, 3},
     {"_hilandyn_hd_bts_cpt_cpp", (DL_FUNC) &_hilandyn_hd_bts_cpt_cpp, 6},
     {"_hilandyn_match_cpp", (DL_FUNC) &_hilandyn_match_cpp, 2},
     {"_hilandyn_filter_bts_cpp", (DL_FUNC) &_hilandyn_filter_bts_cpp, 1},
@@ -310,7 +342,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_hilandyn_updating_cpp", (DL_FUNC) &_hilandyn_updating_cpp, 5},
     {"_hilandyn_balance_np_cpp", (DL_FUNC) &_hilandyn_balance_np_cpp, 5},
     {"_hilandyn_balance_p_cpp", (DL_FUNC) &_hilandyn_balance_p_cpp, 5},
-    {"_hilandyn_finding_cp_cpp", (DL_FUNC) &_hilandyn_finding_cp_cpp, 1},
+    {"_hilandyn_finding_cp_cpp", (DL_FUNC) &_hilandyn_finding_cp_cpp, 2},
     {"_hilandyn_L12_cpp", (DL_FUNC) &_hilandyn_L12_cpp, 1},
     {NULL, NULL, 0}
 };

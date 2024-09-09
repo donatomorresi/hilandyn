@@ -1,10 +1,10 @@
 Package: hilandyn
 Type: Package
 Title: High-dimensional detection of Landscape Dynamics
-Version: 1.0.5.9000
-Date: 2024-15-01
+Version: 1.0.6.9000
+Date: 2024-30-08
 Authors@R: c(
-    person("Donato", "Morresi", email = "donato.morresi@unito.it", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3545-872X")),
+    person("Donato", "Morresi", email = "donato.morresi@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3545-872X")),
     person("Hyeyoung", "Maeng", email = "hyeyoung.maeng@durham.ac.uk", role = c("aut"), comment = c(ORCID = "0000-0001-7835-5862")),
     person("Matteo", "Garbarino", email = "matteo.garbarino@unito.it", role = c("ctb", "fnd"), comment = c(ORCID = "0000-0002-9010-1731"))
     )
@@ -15,7 +15,6 @@ License: GPL (>= 3)
 Imports:
     Rcpp,
     RcppArmadillo,
-    matrixStats,
     Rdpack,
     terra,
     foreach,
@@ -28,7 +27,7 @@ Depends:
 LinkingTo: Rcpp, RcppArmadillo
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 RdMacros: Rdpack
 LazyData: true
 URL: https://github.com/donatomorresi/hilandyn

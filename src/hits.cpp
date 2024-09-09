@@ -34,7 +34,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
   arma::uvec ind369 = {2,5,8};
   
   while (edges.n_rows > 0) {
-    
     double steps_left_d = steps_left;
     arma::uword max_current_steps = std::ceil(p * steps_left_d);
     arma::uvec removable_nodes(idx.max() + 1, arma::fill::ones);
@@ -42,7 +41,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     arma::mat Dmat(d, edges.n_rows);
     
     if (any(edges.col(3) > 0)) {
-      
       arma::uvec prv = arma::find(edges.col(3) != 0);
       arma::umat pr = arma::reshape(prv, 2, prv.n_elem / 2);
       
@@ -52,15 +50,12 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
       arma::rowvec weights_lin_pr = weights_lin(edges(pr_row2, ind3)).t();
 
       for (arma::uword j = 0; j < d; ++j) {
-        
         arma::uvec row_j = {j};
         
         // start computation of detail coefficients
         arma::mat sub_wc, sub_wl, sub_tc, detcoef;
-        
         sub_wc = sub_wl = sub_tc = arma::mat(pr_row1.n_elem, 3, arma::fill::none);
         detcoef = arma::mat(3, pr_row1.n_elem, arma::fill::none);
-        
         arma::umat ind = edges.rows(pr_row1);
         
         for (arma::uword i = 0; i < 3; ++i) {
@@ -112,22 +107,17 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         }
         
         arma::vec p2_details = sum(p2d % upd_bts_coeffs, 0).t();
-        
         arma::vec p_detail0 = arma::max(arma::join_horiz(arma::abs(details.t()), arma::abs(p2_details)), 1);
-        
         arma::vec p_detail = arma::repelem(p_detail0, 2, 1);
         
         if (pr.n_elem != edges.n_rows) {
-          
           arma::uvec edgerow_cd3 = arma::regspace<arma::uvec>(0, edges.n_rows - 1);
           edgerow_cd3.shed_rows(arma::vectorise(pr));
 
           // start computation of detail coefficients
           arma::mat sub_wc, sub_wl, sub_tc, detcoef;
-          
           sub_wc = sub_wl = sub_tc = arma::mat(edgerow_cd3.n_elem, 3, arma::fill::none);
           detcoef = arma::mat(3, edgerow_cd3.n_elem, arma::fill::none);
-          
           arma::umat ind = edges.rows(edgerow_cd3);
           
           for (arma::uword i = 0; i < 3; ++i) {
@@ -153,7 +143,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
       }
     }
     else {
-      
       arma::uvec edgerow = arma::regspace<arma::uvec>(0, edges.n_rows - 1);
       arma::mat sub_wc = arma::join_horiz(weights_const(edges(edgerow, ind1)), weights_const(edges(edgerow, ind2)), weights_const(edges(edgerow, ind3)));
       arma::mat sub_wl = arma::join_horiz(weights_lin(edges(edgerow, ind1)), weights_lin(edges(edgerow, ind2)), weights_lin(edges(edgerow, ind3)));
@@ -172,8 +161,8 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
 
     arma::mat Dmat2 = arma::abs(Dmat) % arma::repmat(w, 1, Dmat.n_cols);
   
-    arma::rowvec colmaxD = arma::max(Dmat2, 0) + arma::mean(Dmat2, 0); 
-  
+    arma::rowvec colmaxD = arma::max(Dmat2, 0) + arma::mean(Dmat2, 0);
+    
     arma::uvec ord_det = arma::stable_sort_index(colmaxD);
 
     arma::umat cand = arma::join_horiz(ord_det, edges(ord_det, ind4));
@@ -182,7 +171,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     arma::uword tei = 0;
     
     if (cand(0, 1) > 0) {
-      
       removable_nodes(edges(ord_det.subvec(0,1), ind1)).zeros();
       removable_nodes(edges(ord_det.subvec(0,1), ind2)).zeros();
       removable_nodes(edges(ord_det.subvec(0,1), ind3)).zeros();
@@ -195,11 +183,9 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     }
 
     while ((eitr.n_elem < max_current_steps) & (tei < noe)) {
-      
       tei += 1;
       
       if (cand(tei, 1) > 0) {
-        
         arma::uvec edges_ind1 = edges(ord_det.subvec(tei, tei + 1), ind1);
         arma::uvec edges_ind2 = edges(ord_det.subvec(tei, tei + 1), ind2);
         arma::uvec edges_ind3 = edges(ord_det.subvec(tei, tei + 1), ind3);
@@ -218,7 +204,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         }
       }
       else {
-        
         arma::uvec edges_ind1(1), edges_ind2(1), edges_ind3(1);
         
         edges_ind1 = edges(ord_det(tei), 0);
@@ -226,19 +211,15 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         edges_ind3 = edges(ord_det(tei), 2);
         
         if (!removable_nodes(edges_ind1).is_empty() && !removable_nodes(edges_ind2).is_empty() && !removable_nodes(edges_ind3).is_empty()) {
-          
           eitr = arma::resize(eitr, eitr.n_elem + 1, 1);
           eitr.tail(1) = tei;
           removable_nodes(arma::join_vert(edges_ind1, edges_ind2, edges_ind3)).zeros();
-          
         }
       }
     }
     
     arma::uvec details_min_ind = ord_det(eitr);
-    
     arma::uword no_of_current_steps = eitr.n_elem;
-    
     arma::umat ee = arma::reshape(edges.rows(details_min_ind), no_of_current_steps, 4);
     
     arma::uvec idx0(idx.n_elem);
@@ -247,11 +228,9 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     arma::uvec ee_col4_ind = arma::find(ee.col(3) > 0);
     
     if (ee_col4_ind.is_empty()) {
-      
       sameboat = arma::join_vert(sameboat, ee.col(3));
       ee.shed_col(3);
-      
-      Rcpp::List udt(6);
+      arma::vec udt;
       
       arma::uword slice0 = current_step;
       arma::uword slice1 = current_step + no_of_current_steps - 1;
@@ -259,21 +238,20 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
       for (arma::uword j = 0; j < d; ++j) {
         
         udt = updating_cpp(ee, weights_const, weights_lin, bts_coeffs.row(j), idx0);
+        bts_coeffs.row(j) = udt.subvec(n*2, n*3-1).t();
         
-        bts_coeffs.row(j) = Rcpp::as<arma::rowvec>(udt["bts_coeffs"]);
-        
-        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice0, slice1)) = arma::conv_to<arma::mat>::from(ee.t() + 1);
-        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice0, slice1)) = Rcpp::as<arma::mat>(udt["h"]);
-        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice0, slice1)) = Rcpp::as<arma::mat>(udt["tc1"]).t();
+        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice0, slice1)) = arma::conv_to<arma::mat>::from(ee.t()+1);
+        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice0, slice1)) = udt.subvec(n*3, n*3 + ee.n_rows*3-1);
+        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice0, slice1)) = udt.subvec(n*3+ee.n_rows*3, n*3+ee.n_rows*3*2-1);
         decomp_hist(arma::span(j * 4 + 3), arma::span::all, arma::span(slice0, slice1)) = balance_np_cpp(paired, ee, idx0, no_of_current_steps, n);
       }
       
-      weights_const = Rcpp::as<arma::vec>(udt["weights_const"]);
-      weights_lin = Rcpp::as<arma::vec>(udt["weights_lin"]);
-      idx = Rcpp::as<arma::uvec>(udt["idx"]);
+      weights_const = udt.subvec(0, n-1);
+      weights_lin = udt.subvec(n, n*2-1);
+      arma::uvec idx_str = arma::find_nonfinite(udt);
+      idx = arma::conv_to<arma::uvec>::from(udt.subvec(idx_str[0]+1, udt.n_elem-1));
     }
     else {
-      
       sameboat = arma::join_vert(sameboat, arma::vectorise(ee(arma::find(ee.col(3) != 0), ind4)));
       
       arma::uvec pr0 = arma::find(ee.col(3) != 0);
@@ -284,9 +262,8 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
       arma::umat ee_p1 = ee.rows(pr.row(0));
       arma::umat ee_p2 = ee.rows(pr.row(1));
       ee_p1.shed_col(3); ee_p2.shed_col(3);
+      arma::vec udt;
       
-      Rcpp::List udt(6);
-
       arma::uword slice0 = current_step;
       arma::uword slice1 = current_step + ee_p1.n_rows - 1;
       arma::uword slice2 = current_step + ee_p1.n_rows;
@@ -298,47 +275,51 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
         
         udt = updating_cpp(ee_p1, weights_const, weights_lin, bts_coeffs.row(j), idx0);
 
-        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice0, slice1)) = arma::conv_to<arma::mat>::from(ee_p1.t() + 1);
-        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice0, slice1)) = Rcpp::as<arma::mat>(udt["h"]);
-        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice0, slice1)) = Rcpp::as<arma::mat>(udt["tc1"]).t();
+        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice0, slice1)) = arma::conv_to<arma::mat>::from(ee_p1.t()+1);
+        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice0, slice1)) = udt.subvec(n*3, n*3 + ee_p1.n_rows*3-1);
+        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice0, slice1)) = udt.subvec(n*3 + ee_p1.n_rows*3, n*3+ee_p1.n_rows*3*2-1);
         decomp_hist(arma::span(j * 4 + 3), arma::span::all, arma::span(slice0, slice1)) = balance_p_cpp(pr, ee_p1, ee_p2, idx0, n);
 
-        udt = updating_cpp(ee_p2, Rcpp::as<arma::vec>(udt["weights_const"]), Rcpp::as<arma::vec>(udt["weights_lin"]), Rcpp::as<arma::mat>(udt["bts_coeffs"]), Rcpp::as<arma::uvec>(udt["idx"]));
-        idx = Rcpp::as<arma::uvec>(udt["idx"]);
+        arma::uvec idx_str = arma::find_nonfinite(udt);
+        udt = updating_cpp(ee_p2, udt.subvec(0, n-1), udt.subvec(n, n*2-1), udt.subvec(n*2, n*3-1).t(), 
+                           arma::conv_to<arma::uvec>::from(udt.subvec(idx_str[0]+1, udt.n_elem-1)));
         
-        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice2, slice3)) = arma::conv_to<arma::mat>::from(ee_p2.t() + 1);
-        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice2, slice3)) = Rcpp::as<arma::mat>(udt["h"]);
-        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice2, slice3)) = Rcpp::as<arma::mat>(udt["tc1"]).t();
+        idx_str = arma::find_nonfinite(udt);
+        idx = arma::conv_to<arma::uvec>::from(udt.subvec(idx_str[0]+1, udt.n_elem-1));
+        
+        decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice2, slice3)) = arma::conv_to<arma::mat>::from(ee_p2.t()+1);
+        decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice2, slice3)) = udt.subvec(n*3, n*3+ee_p2.n_rows*3-1);
+        decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice2, slice3)) = udt.subvec(n*3 + ee_p2.n_rows*3, n*3+ee_p2.n_rows*3*2-1);
         decomp_hist(arma::span(j * 4 + 3), arma::span::all, arma::span(slice2, slice3)) = balance_p_cpp(pr, ee_p1, ee_p2, idx, n);
         
         if (pr.n_elem != ee.n_rows) {
-          
           sameboat = arma::join_vert(sameboat, arma::vectorise(ee(arma::find(ee.col(3) == 0), ind4)));
           arma::umat ee_np = ee; ee_np.shed_rows(arma::vectorise(pr));
+
+          udt = updating_cpp(ee_np, udt.subvec(0, n-1), udt.subvec(n, n*2-1), udt.subvec(n*2, n*3-1).t(), 
+                             arma::conv_to<arma::uvec>::from(udt.subvec(idx_str[0]+1, udt.n_elem-1)));
           
-          udt = updating_cpp(ee_np, Rcpp::as<arma::vec>(udt["weights_const"]), Rcpp::as<arma::vec>(udt["weights_lin"]), Rcpp::as<arma::mat>(udt["bts_coeffs"]), idx);
-          bts_coeffs.row(j) = Rcpp::as<arma::mat>(udt["bts_coeffs"]);
+          bts_coeffs.row(j) = udt.subvec(n*2, n*3-1).t();
           arma::uword no_of_current_steps_pr = no_of_current_steps - pr.n_elem;
           
-          decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice4, slice5)) = arma::conv_to<arma::mat>::from(ee_np.t() + 1);
-          decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice4, slice5)) = Rcpp::as<arma::mat>(udt["h"]);
-          decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice4, slice5)) = Rcpp::as<arma::mat>(udt["tc1"]).t();
+          decomp_hist(arma::span(j * 4), arma::span::all, arma::span(slice4, slice5)) = arma::conv_to<arma::mat>::from(ee_np.t()+1);
+          decomp_hist(arma::span(j * 4 + 1), arma::span::all, arma::span(slice4, slice5)) = udt.subvec(n*3, ee_np.n_rows*3-1);
+          decomp_hist(arma::span(j * 4 + 2), arma::span::all, arma::span(slice4, slice5)) = udt.subvec(n*3+ee_np.n_rows*3, n*3+ee_np.n_rows*3*2-1);
           decomp_hist(arma::span(j * 4 + 3), arma::span::all, arma::span(slice4, slice5)) = balance_np_cpp(paired, ee_np, idx, no_of_current_steps_pr, n);
         }
         else {
-          bts_coeffs.row(j) = Rcpp::as<arma::mat>(udt["bts_coeffs"]);
+          bts_coeffs.row(j) = udt.subvec(n*2, n*3-1).t();
         }
       }
-      weights_const = Rcpp::as<arma::vec>(udt["weights_const"]);
-      weights_lin = Rcpp::as<arma::vec>(udt["weights_lin"]);
-      idx = Rcpp::as<arma::uvec>(udt["idx"]);
-
+      weights_const = udt.subvec(0, n-1);
+      weights_lin = udt.subvec(n, n*2-1);
+      arma::uvec idx_str = arma::find_nonfinite(udt);
+      idx = arma::conv_to<arma::uvec>::from(udt.subvec(idx_str[0]+1, udt.n_elem-1));
       ee.shed_col(3);
     }
     
     ////// STEP 5: Updating other variables //////
     paired = arma::unique(arma::join_vert(paired, arma::vectorise(ee.cols(0,1))));
-    
     arma::vec paired_ee = match_cpp(paired, vectorise(ee.col(2)));
     
     if (!arma::find_finite(paired_ee).is_empty()) {
@@ -364,7 +345,6 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     arma::uvec rs = arma::find(arma::sum(matchpair, 0) == 3);
 
     if (rs.n_elem > 0) {
-      
       arma::umat edges_rs = edges; 
       edges_rs.shed_rows(rs);
       
@@ -399,17 +379,15 @@ Rcpp::List hd_bts_dcmp_cpp(arma::mat bts_coeffs, double p, arma::vec w) {
     }
   }
 
-  return Rcpp::List::create(Rcpp::Named("n") = n,
-                            Rcpp::Named("sameboat") = sameboat.t(),
+  return Rcpp::List::create(Rcpp::Named("sameboat") = sameboat.t(),
                             Rcpp::Named("decomp_hist") = decomp_hist,
                             Rcpp::Named("bts_coeffs") = bts_coeffs);
 }
 
 
 // [[Rcpp::export]]
-Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, double lambda, double bal, arma::vec w, arma::uvec foc_ind) {
+Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, arma::uword n, double lambda, double bal, arma::vec w, arma::uvec foc_ind) {
 
-  const arma::uword n = Rcpp::as<arma::uword>(bts_obj["n"]);
   const arma::uvec sameboat = Rcpp::as<arma::uvec>(bts_obj["sameboat"]);
   arma::cube decomp_hist = Rcpp::as<arma::cube>(bts_obj["decomp_hist"]);
 
@@ -498,9 +476,8 @@ Rcpp::List hd_bts_dns_cpp(Rcpp::List bts_obj, double lambda, double bal, arma::v
 
 
 // [[Rcpp::export]]
-Rcpp::List hd_bts_inv_cpp(Rcpp::List bts_obj) {
+Rcpp::List hd_bts_inv_cpp(Rcpp::List bts_obj, arma::uword n) {
   
-  const arma::uword n = Rcpp::as<arma::uword>(bts_obj["n"]);
   arma::cube decomp_hist = Rcpp::as<arma::cube>(bts_obj["decomp_hist"]);
   arma::mat bts_coeffs = Rcpp::as<arma::mat>(bts_obj["bts_coeffs"]);
   
@@ -543,15 +520,14 @@ Rcpp::List hd_bts_inv_cpp(Rcpp::List bts_obj) {
 
 
 // [[Rcpp::export]]
-Rcpp::List hd_bts_pp1_cpp(Rcpp::List bts_obj, double lambda) {
+Rcpp::List hd_bts_pp1_cpp(Rcpp::List bts_obj, arma::uword n, double lambda) {
 
-  const arma::uword n = Rcpp::as<arma::uword>(bts_obj["n"]);
   arma::mat pp1fit = Rcpp::as<arma::mat>(bts_obj["bts_coeffs"]);
 
   arma::rowvec wc = arma::ones<arma::rowvec>(n);
   arma::rowvec wl = arma::regspace<arma::rowvec>(1, n);
 
-  arma::uvec inicp = finding_cp_cpp(bts_obj);
+  arma::uvec inicp = finding_cp_cpp(bts_obj, n);
   
   arma::uvec ind_13 = {0, 1, 2};
   
@@ -889,6 +865,7 @@ Rcpp::List hd_bts_cpt_cpp(arma::mat x, arma::vec sd, arma::uword nb, double th_c
   const arma::uword n = x.n_cols;
 
   x /= arma::repmat(sd, 1, n);
+
   double lambda = th_const * std::sqrt(2 * std::log(nb * n));
   
   if (weights.has_nan()) {
@@ -896,12 +873,13 @@ Rcpp::List hd_bts_cpt_cpp(arma::mat x, arma::vec sd, arma::uword nb, double th_c
   }
 
   Rcpp::List dcmp = hd_bts_dcmp_cpp(x, p, weights);
-  Rcpp::List dns = hd_bts_dns_cpp(dcmp, arma::as_scalar(lambda), bal, weights, foc_ind);
-  Rcpp::List inv = hd_bts_inv_cpp(dns);
-  Rcpp::List pp1 = hd_bts_pp1_cpp(inv, arma::as_scalar(lambda));
+  Rcpp::List dns = hd_bts_dns_cpp(dcmp, n, arma::as_scalar(lambda), bal, weights, foc_ind);
+  Rcpp::List inv = hd_bts_inv_cpp(dns, n);
+  Rcpp::List pp1 = hd_bts_pp1_cpp(inv, n, arma::as_scalar(lambda));
 
-  arma::umat cptind(arma::size(Rcpp::as<arma::mat>(pp1["details"])));
-  cptind(arma::find(Rcpp::as<arma::mat>(pp1["details"]) > arma::as_scalar(lambda))).ones();
+  arma::mat details = Rcpp::as<arma::mat>(pp1["details"]);
+  arma::umat cptind(arma::size(details));
+  cptind(arma::find(details > arma::as_scalar(lambda))).ones();
 
   return Rcpp::List::create(Rcpp::Named("est") = Rcpp::as<arma::mat>(pp1["bts_coeffs"]) % arma::repmat(sd, 1, n),
                             Rcpp::Named("cpt") = Rcpp::as<arma::uvec>(pp1["chp"]),
