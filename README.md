@@ -10,17 +10,18 @@
 status](https://github.com/donatomorresi/hilandyn/workflows/R-CMD-check/badge.svg)](https://github.com/donatomorresi/hilandyn/actions)
 <!-- badges: end -->
 
-`hilandyn` provides an implementation of the High-dimensional detection
-of Landscape Dynamics algorithm (Morresi et al. 2024) for mapping forest
-disturbance dynamics by segmenting high-dimensional Landsat time series
-into linear trends.
+`hilandyn` is an *R* package that provides an implementation of the
+High-dimensional detection of Landscape Dynamics algorithm (Morresi *et
+al.* 2024) for mapping forest disturbance dynamics by segmenting
+high-dimensional Landsat time series into linear trends.
 
 High-dimensional Landsat time series include information from the
-spatial and spectral dimensions and are analysed using the
-High-dimensional Trend Segmentation (HiTS) procedure proposed by Maeng
-(2019). The HiTS procedure aims to detect changepoints in a piecewise
-linear signal where their number and location are unknown. Changes can
-occur in the intercept, slope or both of linear trends.
+spatial and spectral dimensions and are analysed using a modified
+version of the High-dimensional Trend Segmentation (HiTS) procedure
+proposed by Maeng (2019). The HiTS procedure aims to detect changepoints
+in a piecewise linear signal where their number and location are
+unknown. Changes can occur in the intercept, slope or both of linear
+trends.
 
 `hilandyn` uses the `terra` package for raster and vector data
 management and the `future` package for parallel computation.
