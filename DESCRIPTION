@@ -1,8 +1,8 @@
 Package: hilandyn
 Type: Package
 Title: High-dimensional detection of Landscape Dynamics
-Version: 1.0.6.9000
-Date: 2024-30-08
+Version: 1.0.7.9000
+Date: 2026-27-04
 Authors@R: c(
     person("Donato", "Morresi", email = "donato.morresi@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-3545-872X")),
     person("Hyeyoung", "Maeng", email = "hyeyoung.maeng@durham.ac.uk", role = c("aut"), comment = c(ORCID = "0000-0001-7835-5862")),
