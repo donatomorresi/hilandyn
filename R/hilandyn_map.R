@@ -309,11 +309,11 @@ hilandyn_map <- function(sr_data, si_data, nob_data = NULL, out_path = NULL, sr_
       
       if (!is.null(nob_data)) {
         p()
-        hilandyn_int_cpp(v[, j, drop = F], nob[,j, drop = F], nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
+        hilandyn_int_cpp(v[, j, drop = FALSE], nob[,j, drop = FALSE], nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
       }
       else {
         p()
-        hilandyn_int_cpp(v[, j, drop = F], nob, nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
+        hilandyn_int_cpp(v[, j, drop = FALSE], nob, nb, nc, ny, nr, years, foc_ind, cell_weights, n_times_eBias_of_mad, ev, cng_dir, th_const, noise_iter_max, nob_init_min, rmse, use_last)
       }
     }
     writeValues(out, t(m), str_row, b$nrows[i])
